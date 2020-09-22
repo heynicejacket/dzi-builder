@@ -64,17 +64,25 @@ def open_illustrator_file(app, file):
     return ai_doc
 
 
-def create_artboards(app, doc, ai_path, verbose=False):
+def create_artboards(app, doc, ai_path, width, height=0.0, transparent_png=True, verbose=False):
     """
     Given an Illustrator file, generates files from individual artboards.
+    Setting transparent_png to False will return .svg files. Setting transparent_png to True, will, if the Illustrator
+    (top-level) layer would have negative space (be able to see an empty artboard background), the output file will
+    have transparency.
     :param app:             COM obj, required   reference to Illustrator (type win32com.client.CDispatch)
     :param doc:             COM obj, required   reference to Illustrator file (type win32com.client.CDispatch)
     :param ai_path:         str, required       folder and file path, e.g. 'C:\\path\\to\\file.ai'
+    :param width:           float, required     width of output png file            TODO: should be optional if svg
+    :param height:          float, optional     height of output png file
+    :param transparent_png: bool, optional      if True, saves tiles as .png with transparency
     :param verbose:         bool, optional      if True, prints out details of task
     :return:
     """
+    js_transparent_png = 1 if transparent_png else 0
+    h = width if height == 0.0 else height
     print('Creating artboards from individual layers...') if verbose else None
-    js_create_artboards(app, convert_path_to_js(ai_path))       # generate per-tile files
+    js_create_artboards(app, convert_path_to_js(ai_path), js_transparent_png, width, h)        # generate tiles
 
     doc.Save()                                                  # saving the last file left open provides silent exit
     doc.Close()
@@ -126,6 +134,30 @@ def ai_to_svg(app, layer_path, verbose=False):
     return layer_name_list
 
 
+def get_layer_list(layer_path, verbose=False):
+    """
+    Given a path to a folder, returns a list of layers. For example, a folder which contains:
+
+        base.ai             grid.ai
+        base-01.ai          grid-01.ai
+        base-02.ai          grid-02.ai
+        base-03.ai          grid-03.ai
+
+    ...returns a list:
+
+        ['base', 'grid']
+
+    :param layer_path:      str, required       folder and file path, e.g. 'C:\\path\\to\\file.ai'
+    :param verbose:         bool, optional      if True, prints out details of task
+    :return:                list                list of layer names
+    """
+    print('Creating tile conversion prep list...') if verbose else None
+    output_list = [f for f in os.listdir(layer_path) if os.path.isfile(os.path.join(layer_path, f))]
+    layer_name_list = list(set([l.split('-', 1)[0] for l in output_list]))
+
+    return layer_name_list
+
+
 def create_folder(path, new_folder):
     """
     Given a path (or a path with a file), creates a folder if it doesn't already exist, and returns the path
@@ -143,16 +175,23 @@ def create_folder(path, new_folder):
 
 def generate_tiles(file):
     """
-    Generate SVG tiles from an illustrator file with multiple layers and multiple artboards.
+    Generate SVG or PNG tiles from an illustrator file with multiple layers and multiple artboards.
     :param file:            str, required       folder and file path, e.g. 'C:\path\to\file.ai'
     :return:                list                list of layer names
     """
-    tile_path = create_folder(file, 'svg_layers')
+    tile_path = create_folder(file, 'layers')
 
     app = get_illustrator()
     doc = open_illustrator_file(app, file)
-    create_artboards(app, doc, tile_path)
-    layer_name_list = ai_to_svg(app, tile_path)
+    create_artboards(app, doc, tile_path, 300.0)
+
+    # non-transparent layer implementation:
+    # https://embers.nicejacket.cc/blog/2018/06/14/making-large-maps-with-openseadragon/
+    # layer_name_list = ai_to_svg(app, tile_path)
+
+    # transparent layer implementation:
+    # https://embers.nicejacket.cc/blog/2018/06/16/transparent-layers-for-openseadragon-with-libvips/
+    layer_name_list = get_layer_list(tile_path)
 
     app.Quit()
 
