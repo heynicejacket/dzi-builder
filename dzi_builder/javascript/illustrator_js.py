@@ -1,4 +1,13 @@
 def js_create_artboards(app, path, transparent_png, width, height):
+    """
+
+    :param app:
+    :param path:
+    :param transparent_png:
+    :param width:
+    :param height:
+    :return:
+    """
     js = """
         function createSheetsFromFile(layerPath, transparentOut, widthScale, heightScale) {{
             var exportFolderPath = layerPath;
@@ -73,6 +82,12 @@ def js_create_artboards(app, path, transparent_png, width, height):
 
 
 def js_convert_to_svg(app, path):
+    """
+
+    :param app:
+    :param path:
+    :return:
+    """
     js = """
         function exportToSVG(filePath) {{
             var exportOptions = new ExportOptionsSVG();
