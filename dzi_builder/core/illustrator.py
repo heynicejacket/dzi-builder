@@ -7,27 +7,13 @@ from dzi_builder.javascript.illustrator_js import (
     js_convert_to_svg
 )
 
-
-def prefix_path_to_list(path, file_list):
-    """
-    Given a folder path, creates a list of files with path.
-    :param path:            str, required       folder and file path, e.g. 'C:\\path\\to\\file.ai'
-    :param file_list:       list, required      list of files
-    :return:                list                converted list
-    """
-    return [path + r for r in file_list]
-
-
-def convert_path_to_js(py_path):
-    """
-    Flips \\ to / to convert string path from Python formatting to Javascript, e.g.:
-
-        C:\\path\\to\\file.ai   -->   C:/path/to/file.ai
-
-    :param py_path:         str, required       folder and file path, e.g. 'C:\\path\\to\\file.ai'
-    :return:                str                 converted path
-    """
-    return py_path.replace('\\', '/')
+from dzi_builder.core.toolkit import (
+    create_folder,
+    convert_path_to_js,
+    get_file_list,
+    get_layer_list,
+    prefix_path_to_list
+)
 
 
 def get_illustrator(verbose=False):
@@ -97,7 +83,7 @@ def ai_to_svg(app, layer_path, verbose=False):
     :return:                list                list of layer names
     """
     print('Creating tile conversion prep list...') if verbose else None
-    output_list = [f for f in os.listdir(layer_path) if os.path.isfile(os.path.join(layer_path, f))]
+    output_list = get_file_list(layer_path)
     rem_list_pre = [l for l in output_list if l.find('-') == -1]
 
     rem_list = prefix_path_to_list(layer_path, rem_list_pre)
@@ -117,45 +103,6 @@ def ai_to_svg(app, layer_path, verbose=False):
         ai_tile.Close()
         os.remove(t)
         time.sleep(2)                                           # keeps illustrator from overloading memory
-
-
-def get_layer_list(layer_path, verbose=False):
-    """
-    Given a path to a folder, returns a list of layers. For example, a folder which contains:
-
-        base.ai             grid.ai
-        base-01.ai          grid-01.ai
-        base-02.ai          grid-02.ai
-        base-03.ai          grid-03.ai
-
-    ...returns a list:
-
-        ['base', 'grid']
-
-    :param layer_path:      str, required       folder and file path, e.g. 'C:\\path\\to\\file.ai'
-    :param verbose:         bool, optional      if True, prints out details of task
-    :return:                list                list of layer names
-    """
-    print('Creating tile conversion prep list...') if verbose else None
-    output_list = [f for f in os.listdir(layer_path) if os.path.isfile(os.path.join(layer_path, f))]
-    layer_name_list = list(set([l.split('-', 1)[0] for l in output_list]))
-
-    return layer_name_list
-
-
-def create_folder(path, new_folder):
-    """
-    Given a path (or a path with a file), creates a folder if it doesn't already exist, and returns the path
-    :param path:            str, required       folder and file path, e.g. 'C:\\path\\to\\file.ai'
-    :param new_folder:      str, required       name of folder to be created
-    :return:                str                 newly-created folder path, e.g. 'C:\\path\\to\\new\\'
-    """
-    orig_path = path[:path.rfind('\\')+1]
-    new_path = orig_path + new_folder + '\\'
-    if not os.path.exists(new_path):
-        os.makedirs(new_path)
-
-    return new_path
 
 
 def generate_tiles(file, tile_width, transparency):
@@ -182,8 +129,6 @@ def generate_tiles(file, tile_width, transparency):
 
     if not transparency:
         ai_to_svg(app, tile_path, verbose=True)
-
-    print(layer_name_list)
 
     app.Quit()
 
