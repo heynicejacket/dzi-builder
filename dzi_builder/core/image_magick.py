@@ -22,9 +22,8 @@ def convert_tiles(path, width, height=0, verbose=False):
     mogrify = 'mogrify -format png -size {}x{} {}*.svg -verbose'.format(width, h, path)
     sp_out = subprocess.run(mogrify, capture_output=verbose, text=verbose)
     print(sp_out.stdout) if verbose else None
-
-    # if cp.returncode == 0:
-    #     print(cp.stdout) if verbose else None
+    # if sp_out.returncode == 0:
+    #     print(sp_out.stdout) if verbose else None
     # else:
     #     raise RuntimeError('mogrify failed; check that all text was converted to outlines in Illustrator.')
 
@@ -41,7 +40,6 @@ def combine_tiles(path, layers, width, columns, height=0, verbose=False):
     :return:                none
     """
     h = width if height == 0 else height
-
     for layer in layers:
         print('Begin combining {}.'.format(layer)) if verbose else None
 
