@@ -1,4 +1,5 @@
 import os
+import re
 
 
 def create_folder(path, new_folder):
@@ -41,10 +42,10 @@ def get_layer_list(layer_path, verbose=False):
     """
     Given a path to a folder, returns a list of layers. For example, a folder which contains:
 
-        base.ai             grid.ai
-        base-01.ai          grid-01.ai
-        base-02.ai          grid-02.ai
-        base-03.ai          grid-03.ai
+        base.png            grid.png
+        base-01.png         grid-01.png
+        base-02.png         grid-02.png
+        base-03.png         grid-03.png
 
     ...returns a list:
 
@@ -55,8 +56,7 @@ def get_layer_list(layer_path, verbose=False):
     :return:                list                list of layer names
     """
     print('Creating tile conversion prep list...') if verbose else None
-    output_list = get_file_list(layer_path)
-    layer_name_list = list(set([l.split('-', 1)[0] for l in output_list]))
+    layer_name_list = list(set([re.sub(r'-\d{1,3}\.\D*|\.\D*', '', i) for i in get_file_list(layer_path)]))
 
     return layer_name_list
 
