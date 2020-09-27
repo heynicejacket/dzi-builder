@@ -105,7 +105,7 @@ def ai_to_svg(app, layer_path, verbose=False):
         time.sleep(2)                                           # keeps illustrator from overloading memory
 
 
-def generate_tiles(file, tile_width, transparency):
+def generate_tiles(file, tile_width, transparency, verbose=False):
     """
     Generate SVG or PNG tiles from an illustrator file with multiple layers and multiple artboards.
 
@@ -118,6 +118,7 @@ def generate_tiles(file, tile_width, transparency):
     :param file:            str, required       folder and file path, e.g. 'C:\path\to\file.ai'
     :param tile_width:      float, required     width of output tiles
     :param transparency:    bool, required      if True, tiles are generated with transparency in negative space
+    :param verbose:         bool, optional      if True, prints out details of task
     :return:                list                list of layer names
     """
     tile_path = create_folder(file, 'layers')
@@ -128,7 +129,7 @@ def generate_tiles(file, tile_width, transparency):
     layer_name_list = get_layer_list(tile_path)
 
     if not transparency:
-        ai_to_svg(app, tile_path, verbose=True)
+        ai_to_svg(app, tile_path, verbose=verbose)
 
     app.Quit()
 
