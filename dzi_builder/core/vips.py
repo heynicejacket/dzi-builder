@@ -35,7 +35,7 @@ def combine_transparent_layer(layer_path, col, row, offset_right, offset_down, v
     :param offset_right:
     :param offset_down:
     :param vips_path:
-    :param verbose:
+    :param verbose:         bool, optional      if True, prints out details of task
     :return:
     """
     dzi_layer_list = []
@@ -58,7 +58,7 @@ def make_rows(tile_path, columns, rows, layer, offset, vips_path, verbose=False)
     :param layer:
     :param offset:
     :param vips_path:
-    :param verbose:
+    :param verbose:         bool, optional      if True, prints out details of task
     :return:
     """
     final_rows = []
@@ -110,7 +110,7 @@ def make_columns(tile_path, row_list, layer, offset, vips_path, verbose=False):
     :param layer:
     :param offset:
     :param vips_path:
-    :param verbose:
+    :param verbose:         bool, optional      if True, prints out details of task
     :return:
     """
     row_ct = 0
@@ -149,22 +149,23 @@ def make_columns(tile_path, row_list, layer, offset, vips_path, verbose=False):
     return layer_output
 
 
-def make_image_pyramid(layer_path, layer_list, output_prefix, vips_path, verbose=False):
+def make_image_pyramid(layer_path, layer_list, vips_path, verbose=False):
     """
 
-    :param layer_path:
-    :param layer_list:
+    :param layer_path:      str, required       folder path, e.g. 'C:\\path\\to\\file\\'
+    :param layer_list:      list, required      list of layer names, e.g. ['river', 'base', 'grid']
     :param output_prefix:
     :param vips_path:
-    :param verbose:
+    :param verbose:         bool, optional      if True, prints out details of task
     :return:
     """
 
     for layer in layer_list:
-        dz_save = 'vips dzsave {0}{1} {0}{2} --suffix .png'.format(
+        dz_save = 'vips dzsave {0}{1} {2}{3} --suffix .png'.format(
             layer_path,
-            layer,
-            output_prefix + layer
+            layer + '.png',
+            layer_path + 'html\\dzi\\',
+            layer
         )
         print(dz_save) if verbose else None
 
