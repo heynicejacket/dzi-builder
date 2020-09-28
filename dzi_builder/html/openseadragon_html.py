@@ -1,6 +1,36 @@
-def make_openseadragon_html(layer_list, dzi_location):
-    viewer_id = 'layerToggleMap'
+from dzi_builder.core.toolkit import (
+    create_file
+)
 
+
+def make_site(layer_path, layer_list):
+    """
+
+    :param layer_path:
+    :param layer_list:
+    :return:
+    """
+    html_path = layer_path + 'html\\'
+    osd_path = html_path + 'openseadragon\\'
+
+    readme = 'download the zip from https://openseadragon.github.io/#download, drop openseadragon files here.\n\n' \
+             'download the zip from https://jquery.com/download/, drop jquery file here; you will likely need\n' \
+             'to modify the html file to point to the correct jquery-#.#.#.min.js (line 5 in viewer.html).'
+    create_file(osd_path, 'README.txt', readme)
+
+    make_openseadragon_html(html_path, layer_list)
+    make_openseadragon_css(html_path)
+
+
+def make_openseadragon_html(html_path, layer_list, viewer_id='layerMap', opacity_toggle_div='toggleButtons'):
+    """
+
+    :param html_path:
+    :param layer_list:
+    :param viewer_id:
+    :param opacity_toggle_div:
+    :return:
+    """
     toggle_button_layers = ''
     script_layers = ''
     script_toggle_layers = ''
@@ -11,11 +41,12 @@ def make_openseadragon_html(layer_list, dzi_location):
 
     for layer in layer_list:
         # generate toggle buttons html
-        button_fmt = '            <a class="{0}Toggle">{0} </a>\n'.format(layer)
+        sep = ' - ' if layer_ct < layers_len else ''
+        button_fmt = '            <a class="{0}Toggle">{0}</a>{1}\n'.format(layer, sep)
         toggle_button_layers += button_fmt
 
         # generate openseadragon map layer variables
-        layer_fmt = '            var mapBase = \'dzi/{}.dzi\'\n'.format(layer)
+        layer_fmt = '            var {0} = \'dzi/{0}.dzi\'\n'.format(layer)
         script_layers += layer_fmt
 
         # generate openseadragon tileSources
@@ -28,9 +59,6 @@ def make_openseadragon_html(layer_list, dzi_location):
                         opacity: {0},
                         tileSource: {1}
                     }}{2}""".format(opacity, layer, suffix)
-
-        script_sources_layers += js_layers
-        layer_ct += 1
 
         # generate toggle buttons jquery functionality
         if layer != 'base':
@@ -48,25 +76,28 @@ def make_openseadragon_html(layer_list, dzi_location):
 
             script_toggle_layers += layer_fmt
 
+        script_sources_layers += js_layers
+        layer_ct += 1
+
     html_str = """
 <html>
     <head>
-        <link href='css/test.css' rel='stylesheet'/>
+        <link href='viewer.css' rel='stylesheet'/>
         <script src="openseadragon/openseadragon.min.js"></script>
-        <script src="openseadragon/openseadragon-scalebar.js"></script>
         <script src="openseadragon/jquery.min.js"></script>
     </head>
     <body>
-        <div id="mapToolbar">
-{0}        </div>
+        <div id="{0}">
+{1}        </div>
+        <div id='{3}'></div>
         <script>
             // map layers
-{1}
+{2}
             // openseadragon viewer
             var viewer = OpenSeadragon({{
-                id: '{2}',
-                prefixUrl: '{3}',
-                toolbar: 'mapToolbar',
+                id: '{3}',
+                prefixUrl: 'openseadragon/images/',
+                toolbar: '{0}',
                 zoomInButton: 'zoom-in',
                 zoomOutButton: 'zoom-out',
                 homeButton: 'home',
@@ -79,34 +110,37 @@ def make_openseadragon_html(layer_list, dzi_location):
         </script>
     </body>
 </html>""".format(
+            opacity_toggle_div,
             toggle_button_layers,
             script_layers,
             viewer_id,
-            dzi_location,
             script_sources_layers,
             script_toggle_layers
         )
 
-    html = open('C:\\localtemp\\layers\\index.html', 'w')
-    html.write(html_str)
-    html.close()
+    create_file(html_path, 'viewer.html', html_str)
 
 
-def make_openseadragon_css():
+def make_openseadragon_css(html_path, viewer_id='layerMap', opacity_toggle_div='toggleButtons'):
+    """
+
+    :param html_path:
+    :param viewer_id:
+    :param opacity_toggle_div:
+    :return:
+    """
     css_str = """
-a {
+a {{
     cursor: pointer;
-}
+}}
 
-#playermap {
+#{0} {{
     height: 90%;
-}
+}}
 
-#toolbarPlayerMap {
+#{1} {{
     text-align: center;
     height: 30px;
-}"""
+}}""".format(viewer_id, opacity_toggle_div)
 
-    css = open('C:\\localtemp\\layers\\index.css', 'w')
-    css.write(css_str)
-    css.close()
+    create_file(html_path, 'viewer.css', css_str)
