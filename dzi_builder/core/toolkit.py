@@ -2,19 +2,34 @@ import os
 import re
 
 
-def create_folder(path, new_folder):
+def create_file(file_path, file_name, file_content):
+    new_file = open(file_path + file_name, 'w')
+    new_file.write(file_content)
+    new_file.close()
+
+
+def create_folder(path, check_folder, verbose=False):
     """
     Given a path (or a path with a file), creates a folder if it doesn't already exist, and returns the path
-    :param path:            str, required       folder and file path, e.g. 'C:\\path\\to\\file.ai'
-    :param new_folder:      str, required       name of folder to be created
+    :param path:            str, required       folder or file path, e.g. 'C:\\path\\' or 'C:\\path\\to\\file.ai'
+    :param check_folder:    str, required       name of folder to be created
+    :param verbose:         bool, optional      if True, prints out details of task
     :return:                str                 newly-created folder path, e.g. 'C:\\path\\to\\new\\'
     """
-    orig_path = path[:path.rfind('\\')+1]
-    new_path = orig_path + new_folder + '\\'
-    if not os.path.exists(new_path):
-        os.makedirs(new_path)
+    check_path = path[:path.rfind('\\')+1] + check_folder + '\\'
+    if not os.path.isdir(check_path):
+        os.makedirs(check_path)
+        print('Created {}'.format(check_path)) if verbose else None
 
-    return new_path
+    return check_path
+
+
+def create_folder_structure(layer_path):
+    html_path = create_folder(layer_path, 'html\\')
+    dzi_path = create_folder(html_path, 'dzi\\')
+    osd_path = create_folder(html_path, 'openseadragon\\')
+
+    return html_path, dzi_path, osd_path
 
 
 def convert_path_to_js(py_path):
