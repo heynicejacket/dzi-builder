@@ -1,3 +1,10 @@
+from dzi_builder.core.constants import (
+    BASE_LAYER,
+    OPACITY_TOGGLE_DIV,
+    OSD_VIEWER_ID,
+    SITE_NAME
+)
+
 from dzi_builder.core.toolkit import (
     create_file
 )
@@ -22,7 +29,7 @@ def make_site(layer_path, layer_list):
     make_openseadragon_css(html_path)
 
 
-def make_openseadragon_html(html_path, layer_list, viewer_id='layerMap', opacity_toggle_div='toggleButtons'):
+def make_openseadragon_html(html_path, layer_list, viewer_id=OSD_VIEWER_ID, opacity_toggle_div=OPACITY_TOGGLE_DIV):
     """
 
     :param html_path:
@@ -39,19 +46,19 @@ def make_openseadragon_html(html_path, layer_list, viewer_id='layerMap', opacity
     layers_len = len(layer_list) - 1
     layer_ct = 0
 
-    for layer in layer_list:
-        # generate toggle buttons html
-        sep = ' - ' if layer_ct < layers_len else ''
-        button_fmt = '            <a class="{0}Toggle">{0}</a>{1}\n'.format(layer, sep)
-        toggle_button_layers += button_fmt
+    try:
+        layer_list.insert(0, layer_list.pop(layer_list.index(BASE_LAYER)))
+    except ValueError:
+        pass
 
+    for layer in layer_list:
         # generate openseadragon map layer variables
         layer_fmt = '            var {0} = \'dzi/{0}.dzi\'\n'.format(layer)
         script_layers += layer_fmt
 
         # generate openseadragon tileSources
         suffix = ',' if layer_ct < layers_len else ''
-        opacity = 1 if layer == 'base' else 0
+        opacity = 1 if layer == BASE_LAYER else 0
         js_layers = """
                     {{
                         x: 0,
@@ -60,19 +67,28 @@ def make_openseadragon_html(html_path, layer_list, viewer_id='layerMap', opacity
                         tileSource: {1}
                     }}{2}""".format(opacity, layer, suffix)
 
-        # generate toggle buttons jquery functionality
-        if layer != 'base':
+        if layer != BASE_LAYER:
+            # generate toggle buttons html
+            sep = ' - ' if layer_ct < layers_len else ''
+            button_fmt = '            <a class="{0}Toggle">{0}</a>{1}\n'.format(layer, sep)
+            toggle_button_layers += button_fmt
+
+            # generate toggle buttons jquery functionality
             layer_fmt = """
                 var {0}Opacity = 0;
                 $('.{0}Toggle').on('click', function() {{
-                    {0}Opacity = ({0}Opacity + 0.5) % 1;
-                    {0}Fade(viewer.world.getItemAt(1), ({0}Opacity === 0.5 ? 0.5 : 0));
+                    if ({0}Opacity === 0) {{
+                        {0}Opacity = 1;
+                    }} else {{
+                        {0}Opacity = 0;
+                    }}
+                    {0}Fade(viewer.world.getItemAt({1}), {0}Opacity);
                 }});
                 var {0}Fade = function(image, opacity) {{
                     image.setOpacity({0}Opacity);
                     OpenSeadragon.requestAnimationFrame(frame);
                 }};
-                """.format(layer)
+                """.format(layer, layer_ct)
 
             script_toggle_layers += layer_fmt
 
@@ -82,34 +98,35 @@ def make_openseadragon_html(html_path, layer_list, viewer_id='layerMap', opacity
     html_str = """
 <html>
     <head>
-        <link href='viewer.css' rel='stylesheet'/>
+        <link href='{0}.css' rel='stylesheet'/>
         <script src="openseadragon/openseadragon.min.js"></script>
         <script src="openseadragon/jquery.min.js"></script>
     </head>
     <body>
-        <div id="{0}">
-{1}        </div>
-        <div id='{3}'></div>
+        <div id="{1}">
+{2}        </div>
+        <div id='{4}'></div>
         <script>
             // map layers
-{2}
+{3}
             // openseadragon viewer
             var viewer = OpenSeadragon({{
-                id: '{3}',
+                id: '{4}',
                 prefixUrl: 'openseadragon/images/',
-                toolbar: '{0}',
+                toolbar: '{1}',
                 zoomInButton: 'zoom-in',
                 zoomOutButton: 'zoom-out',
                 homeButton: 'home',
                 fullPageButton: 'full-page',
-                tileSources: [{4}
+                tileSources: [{5}
                 ]
             }});
 
-            // jquery button functionality {5}
+            // jquery button functionality {6}
         </script>
     </body>
 </html>""".format(
+            SITE_NAME,
             opacity_toggle_div,
             toggle_button_layers,
             script_layers,
@@ -118,10 +135,10 @@ def make_openseadragon_html(html_path, layer_list, viewer_id='layerMap', opacity
             script_toggle_layers
         )
 
-    create_file(html_path, 'viewer.html', html_str)
+    create_file(html_path, '{}.html'.format(SITE_NAME), html_str)
 
 
-def make_openseadragon_css(html_path, viewer_id='layerMap', opacity_toggle_div='toggleButtons'):
+def make_openseadragon_css(html_path, viewer_id=OSD_VIEWER_ID, opacity_toggle_div=OPACITY_TOGGLE_DIV):
     """
 
     :param html_path:
@@ -143,4 +160,4 @@ a {{
     height: 30px;
 }}""".format(viewer_id, opacity_toggle_div)
 
-    create_file(html_path, 'viewer.css', css_str)
+    create_file(html_path, '{}.css'.format(SITE_NAME), css_str)
