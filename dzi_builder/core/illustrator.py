@@ -105,7 +105,7 @@ def ai_to_svg(app, layer_path, verbose=False):
         time.sleep(2)                                           # keeps illustrator from overloading memory
 
 
-def generate_tiles(file, tile_width, transparency, verbose=False):
+def generate_tiles(file_path, tile_width, transparency, verbose=False):
     """
     Generate SVG or PNG tiles from an illustrator file with multiple layers and multiple artboards.
 
@@ -115,16 +115,16 @@ def generate_tiles(file, tile_width, transparency, verbose=False):
     # non-transparent layer implementation:
     # https://embers.nicejacket.cc/blog/2018/06/14/making-large-maps-with-openseadragon/
 
-    :param file:            str, required       folder and file path, e.g. 'C:\path\to\file.ai'
+    :param file_path:       str, required       folder and file path, e.g. 'C:\path\to\file.ai'
     :param tile_width:      float, required     width of output tiles
     :param transparency:    bool, required      if True, tiles are generated with transparency in negative space
     :param verbose:         bool, optional      if True, prints out details of task
     :return:                list                list of layer names
     """
-    tile_path = create_folder(file, 'layers')
+    tile_path = create_folder(file_path, 'layers')
 
     app = get_illustrator()
-    doc = open_illustrator_file(app, file)
+    doc = open_illustrator_file(app, file_path)
     create_artboards(app=app, doc=doc, ai_path=tile_path, width=tile_width, transparent_png=transparency)
     layer_name_list = get_layer_list(tile_path)
 
