@@ -2,6 +2,10 @@ from win32com.client import Dispatch, GetActiveObject, pywintypes
 import os
 import time
 
+from dzi_builder.core.constants import (
+    LAYERS_FOLDER
+)
+
 from dzi_builder.javascript.illustrator_js import (
     js_create_artboards,
     js_convert_to_svg
@@ -19,8 +23,9 @@ from dzi_builder.core.toolkit import (
 def get_illustrator(verbose=False):
     """
     Targets an open instance of Illustrator, or opens Illustrator.
+
     :param verbose:         bool, optional      if True, prints out details of task
-    :return:                obj                 reference to Illustrator (type win32com.client.CDispatch)
+    :return:                COM obj, required   reference to Illustrator (type win32com.client.CDispatch)
     """
     print('Targeting or opening Illustrator...') if verbose else None
     try:
@@ -33,16 +38,16 @@ def get_illustrator(verbose=False):
 
 def open_illustrator_file(app, file):
     """
-    Opens an illustrator file.
+    Opens an illustrator file, and waits until the file is opened to continue.
+
     :param app:             COM obj, required   reference to Illustrator (type win32com.client.CDispatch)
     :param file:            str, required       folder and file path, e.g. 'C:\\path\\to\\file.ai'
-    :return:
+    :return:                COM obj, required   reference to Illustrator file (type win32com.client.CDispatch)
     """
-    # my machine takes 5-10 seconds to load Illustrator; could replace with sleep(), this is probably better
     go = False
     while not go:
         try:
-            ai_doc = app.Open(file)                             # open the Illustrator file
+            ai_doc = app.Open(file)
             go = True
         except pywintypes.com_error:
             pass
@@ -56,19 +61,20 @@ def create_artboards(app, doc, ai_path, width, height=0.0, transparent_png=True,
     Setting transparent_png to False will return .svg files. Setting transparent_png to True, will, if the Illustrator
     (top-level) layer would have negative space (be able to see an empty artboard background), the output file will
     have transparency.
+
     :param app:             COM obj, required   reference to Illustrator (type win32com.client.CDispatch)
     :param doc:             COM obj, required   reference to Illustrator file (type win32com.client.CDispatch)
     :param ai_path:         str, required       folder and file path, e.g. 'C:\\path\\to\\file.ai'
-    :param width:           float, required     width of output png file            TODO: should be optional if svg
+    :param width:           float, required     width of output png file
     :param height:          float, optional     height of output png file
     :param transparent_png: bool, optional      if True, saves tiles as .png with transparency
     :param verbose:         bool, optional      if True, prints out details of task
-    :return:
+    :return:                none
     """
     js_transparent_png = 1 if transparent_png else 0
     h = width if height == 0.0 else height
     print('Creating artboards from individual layers...') if verbose else None
-    js_create_artboards(app, convert_path_to_js(ai_path), js_transparent_png, width, h)        # generate tiles
+    js_create_artboards(app, convert_path_to_js(ai_path), js_transparent_png, width, h)
 
     doc.Save()                                                  # saving the last file left open provides silent exit
     doc.Close()
@@ -77,10 +83,11 @@ def create_artboards(app, doc, ai_path, width, height=0.0, transparent_png=True,
 def ai_to_svg(app, layer_path, verbose=False):
     """
     Given a path to a folder, converts all files with the .ai extension into SVG files.
+
     :param app:             COM obj, required   reference to Illustrator (type win32com.client.CDispatch)
     :param layer_path:      str, required       folder and file path, e.g. 'C:\\path\\to\\file.ai'
     :param verbose:         bool, optional      if True, prints out details of task
-    :return:                list                list of layer names
+    :return:                none
     """
     print('Creating tile conversion prep list...') if verbose else None
     output_list = get_file_list(layer_path)
@@ -102,18 +109,16 @@ def ai_to_svg(app, layer_path, verbose=False):
         ai_tile.Save()
         ai_tile.Close()
         os.remove(t)
-        time.sleep(2)                                           # keeps illustrator from overloading memory
+        time.sleep(2)                                           # prevents illustrator overloading memory on large files
 
 
 def generate_tiles(file_path, tile_width, transparency, verbose=False):
     """
     Generate SVG or PNG tiles from an illustrator file with multiple layers and multiple artboards.
 
-    # transparent layer implementation:
-    # https://embers.nicejacket.cc/blog/2018/06/16/transparent-layers-for-openseadragon-with-libvips/
-
-    # non-transparent layer implementation:
-    # https://embers.nicejacket.cc/blog/2018/06/14/making-large-maps-with-openseadragon/
+    Where the target Illustrator file lives, a folder 'layers' (or whatever you set LAYERS_FOLDER constant
+    to) will be created, if it does not exist, to house the output tile images. All further image manipulation
+    will be done in this folder.
 
     :param file_path:       str, required       folder and file path, e.g. 'C:\path\to\file.ai'
     :param tile_width:      float, required     width of output tiles
@@ -121,7 +126,7 @@ def generate_tiles(file_path, tile_width, transparency, verbose=False):
     :param verbose:         bool, optional      if True, prints out details of task
     :return:                list                list of layer names
     """
-    tile_path = create_folder(file_path, 'layers')
+    tile_path = create_folder(file_path, LAYERS_FOLDER)
 
     app = get_illustrator()
     doc = open_illustrator_file(app, file_path)
