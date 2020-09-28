@@ -1,6 +1,6 @@
 def js_create_artboards(app, path, transparent_png, width, height):
     """
-
+    Returns formatted javascript Illustrator script to create transparent png from individual artboards.
     :param app:
     :param path:
     :param transparent_png:
@@ -83,6 +83,11 @@ def js_create_artboards(app, path, transparent_png, width, height):
 
 def js_convert_to_svg(app, path):
     """
+    Returns formatted javascript Illustrator script to create non-transparent png from individual artboards.
+
+    By default, dzi_builder() generates transparent-friendly png files; depending on the setup of your
+    Illustrator file, you may opt to set transparency=False in dzi_builder(), but this will, by default, set
+    the otherwise-transparent background to white.
 
     :param app:
     :param path:
