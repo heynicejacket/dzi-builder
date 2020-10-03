@@ -43,8 +43,8 @@ familiar with), and then other common image tile formats (Google Earth, etc.).
 Export of the basic, square Illustrator-generated map requires a map where artboards were generated in a sequential 
 order; roughly resembling the following format:
 
-![square implementation](https://embers.nicejacket.cc/github/square%20artboard%20structure.png)
-    
+<p align="center"><img src="https://embers.nicejacket.cc/github/square%20artboard%20structure.png" /></p>
+
 (if the tiles available in Illustrator do not create an even square, stay tuned, all of my maps fall into this 
 category; this is coming soon, and my slapdash WIP can be found in dzi_builder.core.tile_filler.py)
 
