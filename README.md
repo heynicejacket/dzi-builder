@@ -14,19 +14,22 @@ From Illustrator, I mass-exported these as svg files to more rapidly generate hi
 ImageMagick, which I also used to combine all the individual tiles together, renumbering each png to fill in the empty
 ocean areas with that 59th tile, 41 times.
 
-Then, I ran 90 individual commands to append each row of images together, and 9 more to combine each row into a 
-single, 30,000 x 30,000 pixel image.
+I ran 90 individual commands to append each row of images together, and 9 more to combine each row into a single, 
+30,000 x 30,000 pixel image.
 
-Then, I used libvips to convert that into a dzi.
+Finally, I used libvips to convert that into a dzi.
 
 Later, when I wanted to add transparent layers - nation borders, etc. - I had to do it all over again, for those 
-layers, this time with libvips as ImageMagick doesn't (not really, anyway) support transparent png.
+layers, this time solely in libvips as ImageMagick doesn't really support transparent png.
 
 I've done that [once since](https://embers.nicejacket.cc/remembered-blacklands.html) for one other map, but staring 
-down the completion of my third (and a recolor of the first), I couldn't stomach going through it again.
+down the completion of my third and fourth (and a recolor of the first), I couldn't stomach it again.
 
-dzi-builder does all of the above, with minimal user input, and outputs a basic version of the html/css/javascript to 
-get a map up and running.
+dzi-builder does all of the above for you and outputs a basic version of the html/css/javascript to get a map up and 
+running.
+
+*Subsequent updates will provide exports for Photoshop (which I'm fairly familiar with), then GIMP (which I'm not 
+familiar with), and then other common image tile formats (Google Earth, etc.).*
 
 ## Basic implementation
 
@@ -34,37 +37,115 @@ The demo Illustrator file can be found
 [here](https://github.com/heynicejacket/dzi-builder/blob/master/dzi_builder/demo-basic.ai). 
 Basic output of this file via dzi-viewer can be seen [here](https://embers.nicejacket.cc/viewer.html).
 
-Current implementation supports only Illustrator file conversions with a square matrix of artboards. The next 
-implementation will include a user interface to aid in placement of redundant, duplicate squares to fill empty space.
-
-Subsequent updates will provide exports for Photoshop (which I'm fairly familiar with), then GIMP (which I'm not 
-familiar with), and then other common image tile formats (Google Earth, etc.).
-
 Export of the basic, square Illustrator-generated map requires a map where artboards were generated in a sequential 
 order; roughly resembling the following format:
 
-<p align="center"><img src="https://embers.nicejacket.cc/github/square%20artboard%20structure.png" /></p>
+<p align="center"><img src="https://embers.nicejacket.cc/github/square%20artboard%20structure.png"></p>
 
-(if the tiles available in Illustrator do not create an even square, stay tuned, all of my maps fall into this 
-category; this is coming soon, and my slapdash WIP can be found in dzi_builder.core.tile_filler.py)
+### Execution
 
-Basic execution to generate an html/css/javascript and dzi structure for an Illustrator file with a complete artboard 
-matrix is as follows:
+Generate an html/css/javascript and dzi structure for an Illustrator file with a complete artboard 
+matrix as follows:
 
     dzi_builder(
-        ai_file='C:\\file\\to\\path\\demo.ai',
-        vips_path='C:\\Program Files\\vips-dev-8.10\\bin\\',
-        offset_right=3000
+        ai_file='C:\\file\\to\\path\\demo.ai',                  // map AI file
+        vips_path='C:\\Program Files\\vips-dev-8.10\\bin\\',    // vips.exe location
+        col=3,                                                  // number of tile cols
+        row=3,                                                  // number of row cols
+        offset_right=3000                                       // width of each tile
     )
 
-(There are a number of people who seem to have issues with pyvips. While I'd rather have a clean python implentation, it 
-seems that people who use Anaconda or Docker have issues with pyvips, and my overarching philosophy is to make 
-implementation as easy as possible, especially for non-technical users.)
-
-Pointing to your target file:
-
-        ai_file='C:\\file\\to\\path\\demo.ai'
+*(A number of people who use Anaconda or Docker seem to have issues with pyvips; I don't use either, but to make 
+implementation as easy as possible, especially for non-technical users, pointing to where vips.exe lives is easy 
+enough)*
 
 Each top-level layer in Illustrator will be treated as a single dzi. Sub-layers will be subsumed into the top level 
 layer, which will be treated as a toggle-able layer. Any media you wish to not be toggle-able should be collected under 
-a top-level layer named 'base' - though you can change the name of the "always on" layer with the constant BASE_LAYER.  
+a top-level layer named "base" - though you can change the name of the "always on" layer with the 
+[constant](https://github.com/heynicejacket/dzi-builder/blob/master/dzi_builder/core/constants.py) BASE_LAYER.
+
+dzi_builder() generates the following directories and files:
+
+    layers\
+        html\
+            dzi\
+                [dzi structures]
+            openseadragon\
+                README.txt              // instructions for installing OpenSeadragon
+            viewer.html
+            viewer.css
+        [png tiles]
+
+Individual png tiles are left in \layers\ to aid in debugging the order of your artboards, but are otherwise not 
+necessary - just drop everything inside \html\ into your site as-is.
+
+The html/jss structure is fairly basic, but the html structure includes the following relevant lines generated by the 
+Illustrator layers. The dzi layers:
+
+    // map layers
+    var base = 'dzi/base.dzi'
+    var grid = 'dzi/grid.dzi'
+    ...
+
+...the tileSources:
+
+    // openseadragon viewer
+    tileSources: [
+        {
+            x: 0,
+            y: 0,
+            opacity: 1,
+            tileSource: base
+        },
+        {
+            x: 0,
+            y: 0,
+            opacity: 0,
+            tileSource: grid
+        },
+        ...
+    ]
+
+...and the jQuery toggle for changing the opacity of non-base layers:
+
+    // jquery button functionality 
+    var gridOpacity = 0;
+    $('.gridToggle').on('click', function() {
+        if (gridOpacity === 0) {
+            gridOpacity = 1;
+        } else {
+            gridOpacity = 0;
+        }
+        gridFade(viewer.world.getItemAt(1), gridOpacity);
+    });
+    var gridFade = function(image, opacity) {
+        image.setOpacity(gridOpacity);
+        OpenSeadragon.requestAnimationFrame(frame);
+    };
+    ...
+
+The layer in Illustrator named "base" is always the 0th layer. Depending on the how you want the layers to appear, you 
+may need to rearrange the order of your layers in either Illustrator or the sections noted above.
+
+You may also want to edit the "toggleButtons" div and rearrange the order of the layers under tileSources (first layer 
+listed is index position 0, second is 1, etc.), in order to have layers that appear over or between toggle-able layers, 
+while preserving their always-on status. You'll need to also adjust the other layer positions in 
+[getItemAt](https://openseadragon.github.io/docs/OpenSeadragon.World.html#getItemAt) here:
+
+    pathsFade(viewer.world.getItemAt(2) 
+
+## Incomplete/filler-tile implementation
+
+The demo Illustrator file can be found 
+[here](https://github.com/heynicejacket/dzi-builder/blob/master/dzi_builder/demo-missing-tiles.ai). 
+Basic output of this file via dzi-viewer can be seen here.
+
+Export of an incomplete Illustrator-generated map does not require a map where artboards were generated in a sequential 
+order, but subsequent steps will be easier; below is an example of a complex artboard structure:
+
+<p align="center"><img src="https://embers.nicejacket.cc/github/incomplete%20artboard%20structure.png"></p>
+
+### Execution
+
+Generation of an html/css/javascript and dzi structure from an Illustrator file with an incomplete artboard matrix is 
+similar to the basic implementation, with the following changes:
