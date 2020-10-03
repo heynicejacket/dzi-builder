@@ -6,9 +6,10 @@ from dzi_builder.core.toolkit import (
     get_layer_list
 )
 
-
-TILE_NAME = '{}-{}.png'
-ROW_NAME = '{}-row{}tile{}.png'
+from dzi_builder.core.constants import (
+    TILE_NAME,
+    ROW_NAME
+)
 
 
 def combine_transparent_layer(layer_path, col, row, offset_right, offset_down, vips_path, verbose=False):
@@ -30,10 +31,10 @@ def combine_transparent_layer(layer_path, col, row, offset_right, offset_down, v
     enough to point the script to wherever you compiled/unzipped vips-dev-x.x
 
     :param layer_path:
-    :param col:
-    :param row:
-    :param offset_right:
-    :param offset_down:
+    :param col:             int, required       count of artboard columns in Illustrator file (starting at 1)
+    :param row:             int, required       count of artboard rows in Illustrator file (starting at 1)
+    :param offset_right:    int, required       width of artboard tile
+    :param offset_down:     int, optional       height of artboard tile
     :param vips_path:       str. required       path to vips.exe, e.g. 'C:\\Program Files\\vips\\bin\\vips.exe'
     :param verbose:         bool, optional      if True, prints out details of task
     :return:
@@ -49,12 +50,12 @@ def combine_transparent_layer(layer_path, col, row, offset_right, offset_down, v
     return dzi_layer_list
 
 
-def make_rows(tile_path, columns, rows, layer, offset, vips_path, verbose=False):
+def make_rows(tile_path, col, row, layer, offset, vips_path, verbose=False):
     """
     https://libvips.github.io/libvips/
     :param tile_path:
-    :param columns:
-    :param rows:
+    :param col:             int, required       count of artboard columns in Illustrator file (starting at 1)
+    :param row:             int, required       count of artboard rows in Illustrator file (starting at 1)
     :param layer:
     :param offset:
     :param vips_path:       str. required       path to vips.exe, e.g. 'C:\\Program Files\\vips\\bin\\vips.exe'
@@ -64,10 +65,10 @@ def make_rows(tile_path, columns, rows, layer, offset, vips_path, verbose=False)
     final_rows = []
     row_ct = tile_iter = 0
 
-    while row_ct < rows:
+    while row_ct < row:
         col_ct = 0
         temp_offset = offset
-        while col_ct < columns - 1:
+        while col_ct < col - 1:
             tile_to_add = TILE_NAME.format(layer, tile_number(col_ct, 1 + tile_iter - col_ct))
             current_row_output = ROW_NAME.format(layer, 0 + row_ct, col_ct + 1)
             if col_ct == 0:
@@ -116,7 +117,6 @@ def make_columns(tile_path, row_list, layer, offset, vips_path, verbose=False):
     row_ct = 0
     row_iter = len(row_list) - 1
     temp_offset = offset
-
     while row_ct < row_iter:
         if row_ct == 0:
             prior_output = ROW_NAME.format(layer, row_ct, row_iter)
