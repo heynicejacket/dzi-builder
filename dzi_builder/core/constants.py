@@ -6,3 +6,7 @@ SITE_NAME = 'viewer'
 
 # illustrator.py
 LAYERS_FOLDER = 'layers'
+
+# vips.py
+TILE_NAME = '{}-{}.png'
+ROW_NAME = '{}-row{}tile{}.png'
