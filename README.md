@@ -6,6 +6,9 @@ from an Illustrator file with multiple layers.
 Future updates will include conversion from Photoshop and GIMP.
 
 ## Why?
+
+<p align="center"><img src="https://embers.nicejacket.cc/dzi-builder/dzi-builder-header.png"></p>
+
 The [first map](https://embers.nicejacket.cc/known-eilarun.html) I converted into a functioning dzi was a pain. My 
 map was massive, with a ton of detail, so I used 59 artboards to make 58 unique files, and, to make a square, a 59th 
 generic "ocean" tile to fill in empty ocean areas that was making the Illustrator file nearly impossible to load.
@@ -35,12 +38,13 @@ familiar with), and then other common image tile formats (Google Earth, etc.).*
 
 The demo Illustrator file can be found 
 [here](https://github.com/heynicejacket/dzi-builder/blob/master/dzi_builder/demo-basic.ai). 
-Basic output of this file via dzi-viewer can be seen [here](https://embers.nicejacket.cc/viewer.html).
+Basic output of this file via dzi-viewer can be seen 
+[here](https://embers.nicejacket.cc/dzi-builder/artboard-simple/viewer.html).
 
 Export of the basic, square Illustrator-generated map requires a map where artboards were generated in a sequential 
 order; roughly resembling the following format:
 
-<p align="center"><img src="https://embers.nicejacket.cc/github/square%20artboard%20structure.png"></p>
+<p align="center"><img src="https://embers.nicejacket.cc/dzi-builder/square%20artboard%20structure.png"></p>
 
 ### Execution
 
@@ -48,7 +52,7 @@ Generate an html/css/javascript and dzi structure for an Illustrator file with a
 matrix as follows:
 
     dzi_builder(
-        ai_file='C:\\file\\to\\path\\demo.ai',                  // map AI file
+        ai_path='C:\\file\\to\\path\\demo.ai',                  // map AI file
         vips_path='C:\\Program Files\\vips-dev-8.10\\bin\\',    // vips.exe location
         col=3,                                                  // number of tile cols
         row=3,                                                  // number of row cols
@@ -134,18 +138,51 @@ while preserving their always-on status. You'll need to also adjust the other la
 
     pathsFade(viewer.world.getItemAt(2) 
 
-## Incomplete/filler-tile implementation
+## Incomplete artboard implementation
 
 The demo Illustrator file can be found 
 [here](https://github.com/heynicejacket/dzi-builder/blob/master/dzi_builder/demo-missing-tiles.ai). 
-Basic output of this file via dzi-viewer can be seen here.
+Basic output of this file via dzi-viewer can be seen 
+[here](https://embers.nicejacket.cc/dzi-builder/artboard-incomplete/viewer.html).
 
 Export of an incomplete Illustrator-generated map does not require a map where artboards were generated in a sequential 
 order, but subsequent steps will be easier; below is an example of a complex artboard structure:
 
-<p align="center"><img src="https://embers.nicejacket.cc/github/incomplete%20artboard%20structure.png"></p>
+<p align="center"><img src="https://embers.nicejacket.cc/dzi-builder/incomplete%20artboard%20structure.png"></p>
 
 ### Execution
 
 Generation of an html/css/javascript and dzi structure from an Illustrator file with an incomplete artboard matrix is 
 similar to the basic implementation, with the following changes:
+
+    dzi_builder(
+        ai_path='C:\\localtemp\\demo-missing-tiles.ai',         // map AI file
+        vips_path='C:\\Program Files\\vips-dev-8.10\\bin\\',    // vips.exe location
+        col=4,                                                  // number of tile cols
+        row=4,                                                  // number of row cols
+        offset_right=3000,                                      // width of each tile
+        incomplete=True                                         // add this optional var
+    )
+
+Given the following variables:
+
+    col=4,
+    row=4,
+    incomplete=True
+
+...the user is prompted with a diagram of the tile matrix, based on the input columns and rows:
+
+    [0]    [1]    [2]    [3]
+    [4]    [5]    [6]    [7]
+    [8]    [9]    [10]   [11]
+    [12]   [13]   [14]   [15]
+    
+The user should enter which tile exists in the above matrix, which should be considered the "filler tile":
+    
+    Enter number of tile to duplicate into empty spaces (e.g. 3):
+
+...and then identify empty spaces where the "filler tile" should be placed:
+
+    List tiles, separated by commas, where 'filler tile' should be placed (e.g. 4,5,6):
+
+The script continues as the basic implementation, generating the necessary html/css/js/dzi structures.
