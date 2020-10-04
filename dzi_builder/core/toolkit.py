@@ -30,7 +30,7 @@ def create_folder(path, check_folder, verbose=False):
     :param verbose:         bool, optional      if True, prints out details of task
     :return:                str                 newly-created folder path, e.g. 'C:\\path\\to\\new\\'
     """
-    check_path = path[:path.rfind('\\')+1] + check_folder + '\\'
+    check_path = get_path(path) + check_folder + '\\'
     if not os.path.isdir(check_path):
         os.makedirs(check_path)
         print('Created {}'.format(check_path)) if verbose else None
@@ -125,6 +125,16 @@ def get_layer_list(layer_path, verbose=False):
     layer_name_list = list(set([re.sub(r'-\d{1,3}\.\D*|\.\D*', '', i) for i in get_file_list(layer_path)]))
 
     return layer_name_list
+
+
+def get_path(path):
+    """
+    Given a file path, strips off the file, and returns only the directory.
+
+    :param path:            str, required       directory or file path, e.g. 'C:\\path\\' or 'C:\\path\\to\\file.ai'
+    :return:                str                 directory
+    """
+    return path[:path.rfind('\\')+1]
 
 
 def prefix_path_to_list(path, file_list):
