@@ -14,7 +14,7 @@ from dzi_builder.core.constants import (
 
 def combine_transparent_layer(layer_path, col, row, offset_right, offset_down, vips_path, verbose=False):
     """
-    Uses libvips to combine
+    Uses libvips to combine individual tiles into a complete layer, to convert to a Deep Zoom Image.
 
     Here, I'm pointing to the location of vips.exe and using subprocess, rather than pyvips, as there seems, for
     some users, to be an issue with locating _libvips when attempting to import pyvips; see:
