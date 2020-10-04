@@ -156,7 +156,7 @@ Generation of an html/css/javascript and dzi structure from an Illustrator file 
 similar to the basic implementation, with the following changes:
 
     dzi_builder(
-        ai_path='C:\\localtemp\\demo-missing-tiles.ai',         // map AI file
+        ai_path='C:\\file\\to\\path\\demo.ai',                  // map AI file
         vips_path='C:\\Program Files\\vips-dev-8.10\\bin\\',    // vips.exe location
         col=4,                                                  // number of tile cols
         row=4,                                                  // number of row cols
