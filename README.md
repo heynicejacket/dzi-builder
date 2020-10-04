@@ -3,6 +3,12 @@ Generate [Deep Zoom Image](https://docs.microsoft.com/en-us/previous-versions/wi
 (dzi) and accompanying html/css structures and requisite javascript for [Openseadragon](https://openseadragon.github.io/) 
 from an Illustrator file with multiple layers.
 
+See example simple 
+Illustrator input [here](https://github.com/heynicejacket/dzi-builder/blob/master/dzi_builder/demo-basic.ai) and 
+dzi_builder() output [here](https://embers.nicejacket.cc/dzi-builder/artboard-simple/viewer.html), and complex 
+Illustrator input [here](https://github.com/heynicejacket/dzi-builder/blob/master/dzi_builder/demo-missing-tiles.ai) and 
+dzi_builder() output [here](https://embers.nicejacket.cc/dzi-builder/artboard-incomplete/viewer.html).
+
 *Future updates will include conversion from Photoshop and GIMP.*
 
 ## Why?
@@ -10,7 +16,7 @@ from an Illustrator file with multiple layers.
 <p align="center"><img src="https://embers.nicejacket.cc/dzi-builder/dzi-builder-header.png"></p>
 
 The [first map](https://embers.nicejacket.cc/known-eilarun.html) I converted into a functioning dzi was a pain. My 
-map was massive, with a ton of detail, so I used 59 artboards to make 58 unique files, and, to make a square, a 59th 
+map was massive, with a ton of detail; I used 59 artboards to make 58 unique files, and, to fill out a square, a 59th 
 generic "ocean" tile to fill in empty ocean areas that was making the Illustrator file nearly impossible to load.
 
 From Illustrator, I mass-exported these as svg files to more rapidly generate high resolution png files with 
