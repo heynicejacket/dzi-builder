@@ -142,7 +142,7 @@ while preserving their always-on status. You'll need to also adjust the other la
 
 The demo Illustrator file can be found 
 [here](https://github.com/heynicejacket/dzi-builder/blob/master/dzi_builder/demo-missing-tiles.ai). 
-Basic output of this file via dzi-viewer can be seen 
+Basic output of this file via dzi_builder() can be seen 
 [here](https://embers.nicejacket.cc/dzi-builder/artboard-incomplete/viewer.html).
 
 Export of an incomplete Illustrator-generated map does not require a map where artboards were generated in a sequential 
