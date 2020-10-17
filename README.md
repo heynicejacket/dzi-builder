@@ -1,6 +1,6 @@
 # dzi-builder
 Generate [Deep Zoom Image](https://docs.microsoft.com/en-us/previous-versions/windows/silverlight/dotnet-windows-silverlight/cc645077(v=vs.95)?redirectedfrom=MSDN) 
-(dzi) and accompanying html/css structures and requisite javascript for [Openseadragon](https://openseadragon.github.io/) 
+(dzi) and accompanying html/css structures and requisite javascript for [OpenSeadragon](https://openseadragon.github.io/) 
 from an Illustrator file with multiple layers.
 
 See example simple 
