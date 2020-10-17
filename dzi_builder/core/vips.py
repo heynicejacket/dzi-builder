@@ -7,6 +7,8 @@ from dzi_builder.core.toolkit import (
 )
 
 from dzi_builder.core.constants import (
+    H_MERGE,
+    V_MERGE,
     TILE_NAME,
     ROW_NAME
 )
@@ -39,114 +41,86 @@ def combine_transparent_layer(layer_path, col, row, offset_right, offset_down, v
     :param verbose:         bool, optional      if True, prints out details of task
     :return:
     """
-    dzi_layer_list = []
-    layer_list = get_layer_list(layer_path)
 
-    for l in layer_list:
-        rows_list = make_rows(layer_path, col, row, l, offset_right, vips_path, verbose=verbose)
-        layer_png = make_columns(layer_path, rows_list, l, offset_down, vips_path, verbose=verbose)
-        dzi_layer_list.append(layer_png)
+    try:
 
-    return dzi_layer_list
+        dzi_layer_list = []
+        rem_layer_list = []
+        layer_list = []
+        lx = 0
 
+        tile_list = [f for f in os.listdir(layer_path) if os.path.isfile(os.path.join(layer_path, f))]
+        layer_name_list = get_layer_list(layer_path)
 
-def make_rows(tile_path, col, row, layer, offset, vips_path, verbose=False):
-    """
-    https://libvips.github.io/libvips/
-    :param tile_path:
-    :param col:             int, required       count of artboard columns in Illustrator file (starting at 1)
-    :param row:             int, required       count of artboard rows in Illustrator file (starting at 1)
-    :param layer:
-    :param offset:
-    :param vips_path:       str. required       path to vips.exe, e.g. 'C:\\Program Files\\vips\\bin\\vips.exe'
-    :param verbose:         bool, optional      if True, prints out details of task
-    :return:
-    """
-    final_rows = []
-    row_ct = tile_iter = 0
+        for l in layer_name_list:
 
-    while row_ct < row:
-        col_ct = 0
-        temp_offset = offset
-        while col_ct < col - 1:
-            tile_to_add = TILE_NAME.format(layer, tile_number(col_ct, 1 + tile_iter - col_ct))
-            current_row_output = ROW_NAME.format(layer, 0 + row_ct, col_ct + 1)
-            if col_ct == 0:
-                prior_row_output = TILE_NAME.format(layer, tile_number(col_ct, tile_iter))
-                remove_temp_row = False
-            else:
-                prior_row_output = ROW_NAME.format(layer, 0 + row_ct, col_ct)
-                remove_temp_row = True
+            for layer_name in layer_name_list:
+                layer_list.append([t for t in tile_list if t.startswith(layer_name)])
 
-            merge = 'vips merge {0}{1} {0}{2} {0}{3} horizontal {4} 0'.format(
-                tile_path,
-                tile_to_add,
-                prior_row_output,
-                current_row_output,
-                temp_offset
-            )
-            print(merge) if verbose else None
+            tile_list = layer_list[lx]
+            lx += 1
 
-            sp_out = subprocess.run(merge, cwd=vips_path, shell=True, capture_output=verbose, text=verbose)
-            print(sp_out.stdout) if verbose else None
+            i = r = 0
+            temp_offset_down = offset_down
+            while i < (col * row):
 
-            os.remove(tile_path + prior_row_output) if remove_temp_row else None
+                c = i % col
+                temp_offset_left = offset_right
 
-            col_ct += 1
-            tile_iter += 1
-            temp_offset += offset
+                if c == col - 1:
+                    # make a single row
+                    if r == 0:
+                        pass
+                    else:
+                        first_file = ROW_NAME.format(l, r, c)
+                        output_file = TILE_NAME.format(l, r - 1)
 
-        row_ct += 1
-        tile_iter += 1
-        final_rows.append(current_row_output)
+                        if i != len(tile_list) - 1:
+                            rem_layer_list.append(output_file)
 
-    return final_rows
+                        if r - 1 == 0:
+                            second_file = ROW_NAME.format(l, r - 1, c)
+                        else:
+                            temp_offset_down += offset_down
+                            second_file = TILE_NAME.format(l, r - 2)
+                        row_merge = V_MERGE.format(layer_path, first_file, second_file, output_file, temp_offset_down)
 
+                        print(row_merge) if verbose else None
+                        subprocess.run(row_merge, cwd=vips_path, shell=True)
 
-def make_columns(tile_path, row_list, layer, offset, vips_path, verbose=False):
-    """
-    https://libvips.github.io/libvips/
-    :param tile_path:
-    :param row_list:
-    :param layer:
-    :param offset:
-    :param vips_path:       str. required       path to vips.exe, e.g. 'C:\\Program Files\\vips\\bin\\vips.exe'
-    :param verbose:         bool, optional      if True, prints out details of task
-    :return:
-    """
-    row_ct = 0
-    row_iter = len(row_list) - 1
-    temp_offset = offset
-    while row_ct < row_iter:
-        if row_ct == 0:
-            prior_output = ROW_NAME.format(layer, row_ct, row_iter)
-        else:
-            prior_output = TILE_NAME.format(layer, row_ct - 1)
-        row_to_add = ROW_NAME.format(layer, row_ct + 1, row_iter)
-        current_output = TILE_NAME.format(layer, row_ct)
+                else:
+                    # combine rows
+                    first_file = tile_list[i + 1]
+                    output_file = ROW_NAME.format(l, r, c + 1)
+                    rem_layer_list.append(output_file)
 
-        merge = 'vips merge {0}{1} {0}{2} {0}{3} vertical 0 {4}'.format(
-            tile_path,
-            row_to_add,
-            prior_output,
-            current_output,
-            temp_offset
-        )
-        print(merge) if verbose else None
+                    if c == 0:
+                        second_file = tile_list[i]
+                    else:
+                        temp_offset_left += offset_right
+                        second_file = ROW_NAME.format(l, r, c)
 
-        sp_out = subprocess.run(merge, cwd=vips_path, shell=True, capture_output=verbose, text=verbose)
-        print(sp_out.stdout) if verbose else None
+                    col_merge = H_MERGE.format(layer_path, first_file, second_file, output_file, temp_offset_left)
 
-        os.remove(tile_path + prior_output)
-        os.remove(tile_path + row_to_add)
+                    print(col_merge) if verbose else None
+                    subprocess.run(col_merge, cwd=vips_path, shell=True)
 
-        row_ct += 1
-        temp_offset += offset
+                if c == col - 1:
+                    r += 1
+                i += 1
 
-    layer_output = re.sub(r'-\d{1}', '', current_output)
-    os.rename(tile_path + current_output, tile_path + layer_output)
+            layer_png = l + '.png'
+            dzi_layer_list.append(layer_png)
+            os.rename(layer_path + output_file, layer_path + layer_png)
 
-    return layer_output
+        for rem in rem_layer_list:
+            os.remove(layer_path + rem)
+
+        return dzi_layer_list
+
+    except IndexError as e:
+        print('tile_{}; clear non-tile files from layer_path'.format(e))
+
 
 
 def make_image_pyramid(layer_path, layer_list, vips_path, verbose=False):
