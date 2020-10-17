@@ -103,19 +103,21 @@ def dzi_builder(ai_path, vips_path, col, row, offset_right,
 
 # basic implementation
 dzi_builder(
-    ai_path='C:\\file\\to\\path\\demo-simple.ai',
+    ai_path='C:\\path\\to\\file\\demo-simple.ai',
     vips_path='C:\\Program Files\\vips-dev-8.10\\bin\\',
     col=3,
     row=3,
-    offset_right=3000
+    offset_right=3000,
+    verbose=True
 )
 
 # # incomplete implementation
 # dzi_builder(
-#     ai_path='C:\\file\\to\\path\\demo-incomplete.ai',
+#     ai_path='C:\\path\\to\\file\\demo-incomplete.ai',
 #     vips_path='C:\\Program Files\\vips-dev-8.10\\bin\\',
 #     col=4,
 #     row=4,
 #     offset_right=3000,
-#     incomplete=True
+#     incomplete=True,
+#     verbose=True
 # )
