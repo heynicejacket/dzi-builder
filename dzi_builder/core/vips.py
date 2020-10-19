@@ -62,10 +62,10 @@ def combine_transparent_layer(layer_path, col, row, offset_right, offset_down, v
 
             i = r = 0
             temp_offset_down = offset_down
+            temp_offset_right = offset_right
             while i < (col * row):
 
                 c = i % col
-                temp_offset_left = offset_right
 
                 if c == col - 1:
                     # make a single row
@@ -81,9 +81,9 @@ def combine_transparent_layer(layer_path, col, row, offset_right, offset_down, v
                         if r - 1 == 0:
                             second_file = ROW_NAME.format(l, r - 1, c)
                         else:
-                            temp_offset_down += offset_down
+                            temp_offset_right += offset_right
                             second_file = TILE_NAME.format(l, r - 2)
-                        row_merge = V_MERGE.format(layer_path, first_file, second_file, output_file, temp_offset_down)
+                        row_merge = V_MERGE.format(layer_path, first_file, second_file, output_file, temp_offset_right)
 
                         print(row_merge) if verbose else None
                         subprocess.run(row_merge, cwd=vips_path, shell=True)
@@ -95,12 +95,13 @@ def combine_transparent_layer(layer_path, col, row, offset_right, offset_down, v
                     rem_layer_list.append(output_file)
 
                     if c == 0:
+                        temp_offset_down = offset_down
                         second_file = tile_list[i]
                     else:
-                        temp_offset_left += offset_right
+                        temp_offset_down += offset_down
                         second_file = ROW_NAME.format(l, r, c)
 
-                    col_merge = H_MERGE.format(layer_path, first_file, second_file, output_file, temp_offset_left)
+                    col_merge = H_MERGE.format(layer_path, first_file, second_file, output_file, temp_offset_down)
 
                     print(col_merge) if verbose else None
                     subprocess.run(col_merge, cwd=vips_path, shell=True)
