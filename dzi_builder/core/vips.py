@@ -1,20 +1,18 @@
 import os
 import subprocess
-import re
 
 from dzi_builder.core.toolkit import (
     get_layer_list
 )
 
 from dzi_builder.core.constants import (
-    H_MERGE,
-    V_MERGE,
-    TILE_NAME,
-    ROW_NAME
+    ARRAYJOIN,
+    COMPOSITE,
+    DZSAVE
 )
 
 
-def combine_transparent_layer(layer_path, col, row, offset_right, offset_down, vips_path, verbose=False):
+def combine_transparent_layer(layer_path, col, vips_path, verbose=False):
     """
     Uses libvips to combine individual tiles into a complete layer, to convert to a Deep Zoom Image.
 
@@ -32,21 +30,17 @@ def combine_transparent_layer(layer_path, col, row, offset_right, offset_down, v
     and was going to deprecate after I was finished - and I may do so in the future - but for now, it's easy
     enough to point the script to wherever you compiled/unzipped vips-dev-x.x
 
-    :param layer_path:
+    :param layer_path:      str, required       folder path, e.g. 'C:\\path\\to\\file\\'
     :param col:             int, required       count of artboard columns in Illustrator file (starting at 1)
-    :param row:             int, required       count of artboard rows in Illustrator file (starting at 1)
-    :param offset_right:    int, required       width of artboard tile
-    :param offset_down:     int, optional       height of artboard tile
     :param vips_path:       str. required       path to vips.exe, e.g. 'C:\\Program Files\\vips\\bin\\vips.exe'
     :param verbose:         bool, optional      if True, prints out details of task
-    :return:
+    :return:                none
     """
 
     try:
 
-        dzi_layer_list = []
-        rem_layer_list = []
         layer_list = []
+        vips_fmt_layer_path = layer_path.replace('\\', '\\\\')                  # libvips arrays need double \\ in paths
         lx = 0
 
         tile_list = [f for f in os.listdir(layer_path) if os.path.isfile(os.path.join(layer_path, f))]
@@ -60,68 +54,23 @@ def combine_transparent_layer(layer_path, col, row, offset_right, offset_down, v
             tile_list = layer_list[lx]
             lx += 1
 
-            i = r = 0
-            temp_offset_down = offset_down
-            temp_offset_right = offset_right
-            while i < (col * row):
+            for t in tile_list:
+                temp_t = 'temp_' + t
+                os.rename(layer_path + t, layer_path + temp_t)
+                composite = COMPOSITE.format(vips_fmt_layer_path + temp_t, vips_fmt_layer_path + t)
+                print(composite) if verbose else None
+                subprocess.run(composite, cwd=vips_path, shell=True, capture_output=True, text=True)
+                os.remove(layer_path + 'temp_' + t)
 
-                c = i % col
+            tile_list = [vips_fmt_layer_path + t for t in tile_list]
 
-                if c == col - 1:
-                    # make a single row
-                    if r == 0:
-                        pass
-                    else:
-                        first_file = ROW_NAME.format(l, r, c)
-                        output_file = TILE_NAME.format(l, r - 1)
-
-                        if i != len(tile_list) - 1:
-                            rem_layer_list.append(output_file)
-
-                        if r - 1 == 0:
-                            second_file = ROW_NAME.format(l, r - 1, c)
-                        else:
-                            temp_offset_right += offset_right
-                            second_file = TILE_NAME.format(l, r - 2)
-                        row_merge = V_MERGE.format(layer_path, first_file, second_file, output_file, temp_offset_right)
-
-                        print(row_merge) if verbose else None
-                        subprocess.run(row_merge, cwd=vips_path, shell=True)
-
-                else:
-                    # combine rows
-                    first_file = tile_list[i + 1]
-                    output_file = ROW_NAME.format(l, r, c + 1)
-                    rem_layer_list.append(output_file)
-
-                    if c == 0:
-                        temp_offset_down = offset_down
-                        second_file = tile_list[i]
-                    else:
-                        temp_offset_down += offset_down
-                        second_file = ROW_NAME.format(l, r, c)
-
-                    col_merge = H_MERGE.format(layer_path, first_file, second_file, output_file, temp_offset_down)
-
-                    print(col_merge) if verbose else None
-                    subprocess.run(col_merge, cwd=vips_path, shell=True)
-
-                if c == col - 1:
-                    r += 1
-                i += 1
-
-            layer_png = l + '.png'
-            dzi_layer_list.append(layer_png)
-            os.rename(layer_path + output_file, layer_path + layer_png)
-
-        for rem in rem_layer_list:
-            os.remove(layer_path + rem)
-
-        return dzi_layer_list
+            tile_array = '"' + ' '.join(tile_list) + '"'
+            arrayjoin = ARRAYJOIN.format(tile_array, vips_fmt_layer_path + l + '.png', col)
+            print(arrayjoin) if verbose else None
+            subprocess.run(arrayjoin, cwd=vips_path, shell=True, capture_output=True, text=True)
 
     except IndexError as e:
         print('tile_{}; clear non-tile files from layer_path'.format(e))
-
 
 
 def make_image_pyramid(layer_path, layer_list, vips_path, verbose=False):
@@ -147,7 +96,7 @@ def make_image_pyramid(layer_path, layer_list, vips_path, verbose=False):
     :return:                none
     """
     for layer in layer_list:
-        dz_save = 'vips dzsave {0}{1} {2}{3} --suffix .png'.format(
+        dz_save = DZSAVE.format(
             layer_path,
             layer + '.png',
             layer_path + 'html\\dzi\\',
