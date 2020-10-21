@@ -41,13 +41,13 @@ def dzi_builder(ai_path, vips_path, col, row, offset_right,
         https://openseadragon.github.io/#download
         https://jquery.com/download/
 
-    Steps to generate the dzi and html are as follows:
+    Basic steps to generate the dzi and html are as follows:
 
     create_folder_structure()
     Generates the necessary folder structure in the location of the target Illustrator file.
 
     generate_tiles()
-
+    Opens an Illustrator file and creates individual png tiles with JavaScript.
 
     combine_transparent_layer()
 
@@ -91,25 +91,25 @@ def dzi_builder(ai_path, vips_path, col, row, offset_right,
         restructure_layer_matrix(layer_path, layers_list, layer_names, filler_list)
 
     if transparency:
-        combine_transparent_layer(layer_path, col, row, offset_right, offset_down_rect, vips_path, verbose)
+        combine_transparent_layer(layer_path, col, vips_path, verbose)
     else:
         convert_tiles(layer_path, offset_right, verbose=verbose)
         [os.remove(layer_path + f) for f in os.listdir(layer_path) if f.endswith('.svg')]
-        combine_tiles(layer_path, layer_names, offset_down_rect, 3, verbose=verbose)
+        combine_tiles(layer_path, layer_names, offset_down_rect, col, verbose=verbose)
 
     make_image_pyramid(layer_path, layer_names, vips_path, verbose=verbose)
     make_site(layer_path, layer_names)
 
 
-# basic implementation
-dzi_builder(
-    ai_path='C:\\path\\to\\file\\demo-simple.ai',
-    vips_path='C:\\Program Files\\vips-dev-8.10\\bin\\',
-    col=3,
-    row=3,
-    offset_right=3000,
-    verbose=True
-)
+# # basic implementation
+# dzi_builder(
+#     ai_path='C:\\path\\to\\file\\demo-simple.ai',
+#     vips_path='C:\\Program Files\\vips-dev-8.10\\bin\\',
+#     col=3,
+#     row=3,
+#     offset_right=3000,
+#     verbose=True
+# )
 
 # # incomplete implementation
 # dzi_builder(
