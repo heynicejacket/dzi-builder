@@ -8,7 +8,6 @@ SITE_NAME = 'viewer'
 LAYERS_FOLDER = 'layers'
 
 # vips.py
-TILE_NAME = '{}-{}.png'
-ROW_NAME = '{}-row{}tile{}.png'
-V_MERGE = 'vips merge {0}{1} {0}{2} {0}{3} vertical 0 {4}'
-H_MERGE = 'vips merge {0}{1} {0}{2} {0}{3} horizontal {4} 0'
+ARRAYJOIN = 'vips arrayjoin {} {} --across {}'
+COMPOSITE = 'vips composite {} {} 0'
+DZSAVE = 'vips dzsave {}{} {}{} --suffix .png'
