@@ -118,7 +118,7 @@ def tile_number(n, mod=0):
     """
     if n + mod < 10:
         s = '00' + str(n + mod)
-    elif n + mod >= 10 & n + mod < 100:
+    elif (n + mod >= 10) and (n + mod < 100):
         s = '0' + str(n + mod)
     else:
         s = str(n + mod)
