@@ -32,7 +32,7 @@ def combine_transparent_layer(layer_path, col, vips_path, verbose=False):
 
     :param layer_path:      str, required       folder path, e.g. 'C:\\path\\to\\file\\'
     :param col:             int, required       count of artboard columns in Illustrator file (starting at 1)
-    :param vips_path:       str. required       path to vips.exe, e.g. 'C:\\Program Files\\vips\\bin\\vips.exe'
+    :param vips_path:       str. required       path to vips.exe, e.g. 'C:\\Program Files\\vips\\bin\\'
     :param verbose:         bool, optional      if True, prints out details of task
     :return:                none
     """

@@ -36,18 +36,18 @@ def get_illustrator(verbose=False):
     return app
 
 
-def open_illustrator_file(app, file):
+def open_illustrator_file(app, file_path):
     """
     Opens an illustrator file, and waits until the file is opened to continue.
 
     :param app:             COM obj, required   reference to Illustrator (type win32com.client.CDispatch)
-    :param file:            str, required       folder and file path, e.g. 'C:\\path\\to\\file.ai'
+    :param file_path:       str, required       path to Illustrator file, e.g. 'C:\\path\\to\\file.ai'
     :return:                COM obj, required   reference to Illustrator file (type win32com.client.CDispatch)
     """
     go = False
     while not go:
         try:
-            ai_doc = app.Open(file)
+            ai_doc = app.Open(file_path)
             go = True
         except pywintypes.com_error:
             pass
@@ -55,7 +55,7 @@ def open_illustrator_file(app, file):
     return ai_doc
 
 
-def create_artboards(app, doc, ai_path, width, height=0.0, transparent_png=True, verbose=False):
+def create_artboards(app, doc, file_path, width, height=0.0, transparent_png=True, verbose=False):
     """
     Given an Illustrator file, generates files from individual artboards.
     Setting transparent_png to False will return .svg files. Setting transparent_png to True, will, if the Illustrator
@@ -64,7 +64,7 @@ def create_artboards(app, doc, ai_path, width, height=0.0, transparent_png=True,
 
     :param app:             COM obj, required   reference to Illustrator (type win32com.client.CDispatch)
     :param doc:             COM obj, required   reference to Illustrator file (type win32com.client.CDispatch)
-    :param ai_path:         str, required       folder and file path, e.g. 'C:\\path\\to\\file.ai'
+    :param file_path:       str, required       path to Illustrator file, e.g. 'C:\\path\\to\\file.ai'
     :param width:           float, required     width of output png file
     :param height:          float, optional     height of output png file
     :param transparent_png: bool, optional      if True, saves tiles as .png with transparency
@@ -74,27 +74,27 @@ def create_artboards(app, doc, ai_path, width, height=0.0, transparent_png=True,
     js_transparent_png = 1 if transparent_png else 0
     h = width if height == 0.0 else height
     print('Creating artboards from individual layers...') if verbose else None
-    js_create_artboards(app, convert_path_to_js(ai_path), js_transparent_png, width, h)
+    js_create_artboards(app, convert_path_to_js(file_path), js_transparent_png, width, h)
 
     doc.Save()                                                  # saving the last file left open provides silent exit
     doc.Close()
 
 
-def ai_to_svg(app, layer_path, verbose=False):
+def ai_to_svg(app, file_path, verbose=False):
     """
     Given a path to a folder, converts all files with the .ai extension into SVG files.
 
     :param app:             COM obj, required   reference to Illustrator (type win32com.client.CDispatch)
-    :param layer_path:      str, required       folder and file path, e.g. 'C:\\path\\to\\file.ai'
+    :param file_path:       str, required       path to Illustrator file, e.g. 'C:\\path\\to\\file.ai'
     :param verbose:         bool, optional      if True, prints out details of task
     :return:                none
     """
     print('Creating tile conversion prep list...') if verbose else None
-    output_list = get_file_list(layer_path)
+    output_list = get_file_list(file_path)
     rem_list_pre = [l for l in output_list if l.find('-') == -1]
 
-    rem_list = prefix_path_to_list(layer_path, rem_list_pre)
-    tile_list_pre = prefix_path_to_list(layer_path, output_list)
+    rem_list = prefix_path_to_list(file_path, rem_list_pre)
+    tile_list_pre = prefix_path_to_list(file_path, output_list)
     tile_list = [f for f in tile_list_pre if f not in rem_list]
 
     [os.remove(r) for r in rem_list]                            # unsure why illustrator creates these, but, unneeded
@@ -104,7 +104,7 @@ def ai_to_svg(app, layer_path, verbose=False):
         print('...{}'.format(t)) if verbose else None
         ai_tile = app.Open(t)
 
-        js_convert_to_svg(app, layer_path.replace('\\', '/'))
+        js_convert_to_svg(app, file_path.replace('\\', '/'))
 
         ai_tile.Save()
         ai_tile.Close()
@@ -120,7 +120,7 @@ def generate_tiles(file_path, tile_width, transparency, verbose=False):
     to) will be created, if it does not exist, to house the output tile images. All further image manipulation
     will be done in this folder.
 
-    :param file_path:       str, required       folder and file path, e.g. 'C:\path\to\file.ai'
+    :param file_path:       str, required       path to Illustrator file, e.g. 'C:\\path\\to\\file.ai'
     :param tile_width:      float, required     width of output tiles
     :param transparency:    bool, required      if True, tiles are generated with transparency in negative space
     :param verbose:         bool, optional      if True, prints out details of task
@@ -130,7 +130,7 @@ def generate_tiles(file_path, tile_width, transparency, verbose=False):
 
     app = get_illustrator()
     doc = open_illustrator_file(app, file_path)
-    create_artboards(app=app, doc=doc, ai_path=tile_path, width=tile_width, transparent_png=transparency)
+    create_artboards(app=app, doc=doc, file_path=tile_path, width=tile_width, transparent_png=transparency)
     layer_name_list = get_layer_list(tile_path)
 
     if not transparency:

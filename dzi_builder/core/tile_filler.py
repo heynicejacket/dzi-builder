@@ -145,10 +145,10 @@ def reset_tile_names(tile_path):
         os.rename(tile_path + tile, tile_path + reformatted_layer_name)
 
 
-def restructure_layer_matrix(tile_path, layers_list, layer_names, filler_list):
+def restructure_layer_matrix(layer_path, layers_list, layer_names, filler_list):
     """
 
-    :param tile_path:
+    :param layer_path:      str, required       folder path, e.g. 'C:\\path\\to\\file\\'
     :param layers_list:
     :param layer_names:
     :param filler_list:
@@ -164,11 +164,11 @@ def restructure_layer_matrix(tile_path, layers_list, layer_names, filler_list):
             t = tile_number(tile_ct)
             if tile == filler_list[layer_ct]:
                 file_to_remove = tile
-                shutil.copy(tile_path + tile, tile_path + layer_name + t + '.png')
+                shutil.copy(layer_path + tile, layer_path + layer_name + t + '.png')
             else:
-                os.rename(tile_path + tile, tile_path + layer_name + t + '.png')
+                os.rename(layer_path + tile, layer_path + layer_name + t + '.png')
             tile_ct += 1
         layer_ct += 1
-        os.remove(tile_path + file_to_remove)
+        os.remove(layer_path + file_to_remove)
 
-    reset_tile_names(tile_path)
+    reset_tile_names(layer_path)

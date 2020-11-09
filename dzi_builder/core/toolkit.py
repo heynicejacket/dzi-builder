@@ -10,7 +10,7 @@ def create_file(file_path, file_name, file_content):
     """
     Give a path, file name, and content, creates a file with that content in that location.
 
-    :param file_path:       str, required       folder path, e.g. 'C:\\path\\'
+    :param file_path:       str, required       folder path, e.g. 'C:\\path\\to\\file\\'
     :param file_name:       str, required       name of file to be created
     :param file_content:    str, required       content to fill file with
     :return:                none
@@ -71,7 +71,7 @@ def create_folder_structure(file_path):
         dzi_path   = 'C:\\path\\layers\\html\\dzi\\'
         osd_path   = 'C:\\path\\layers\\html\\openseadragon\\'
 
-    :param file_path:       str, required       folder and file path, e.g. 'C:\path\to\file.ai'
+    :param file_path:      str, required       folder path, e.g. 'C:\\path\\to\\file\\'
     :return:                str                 folder paths to all created or existing folders
     """
     layer_path = create_folder(file_path, LAYERS_FOLDER)
@@ -82,26 +82,26 @@ def create_folder_structure(file_path):
     return layer_path, html_path, dzi_path, osd_path
 
 
-def convert_path_to_js(py_path):
+def convert_path_to_js(py_fmt_path):
     """
     Flips \\ to / to convert string path from Python formatting to Javascript, e.g.:
 
         C:\\path\\to\\file.ai   -->   C:/path/to/file.ai
 
-    :param py_path:         str, required       folder and file path, e.g. 'C:\\path\\to\\file.ai'
+    :param py_fmt_path:     str, required       folder path, e.g. 'C:\\path\\to\\file\\'
     :return:                str                 converted path
     """
-    return py_path.replace('\\', '/')
+    return py_fmt_path.replace('\\', '/')
 
 
-def get_file_list(path):
+def get_file_list(py_fmt_path):
     """
     Given a directory, returns a list of all items in directory.
 
-    :param path:            str, required       folder path, e.g. 'C:\\path\\'
+    :param py_fmt_path:     str, required       folder path, e.g. 'C:\\path\\to\\file\\'
     :return:                list                list of all files in directory
     """
-    return [f for f in os.listdir(path) if os.path.isfile(os.path.join(path, f))]
+    return [f for f in os.listdir(py_fmt_path) if os.path.isfile(os.path.join(py_fmt_path, f))]
 
 
 def get_layer_list(layer_path, verbose=False):
@@ -117,7 +117,7 @@ def get_layer_list(layer_path, verbose=False):
 
         ['base', 'grid']
 
-    :param layer_path:      str, required       folder and file path, e.g. 'C:\\path\\to\\file.ai'
+    :param layer_path:      str, required       folder path, e.g. 'C:\\path\\to\\file\\'
     :param verbose:         bool, optional      if True, prints out details of task
     :return:                list                list of layer names
     """
