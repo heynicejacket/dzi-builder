@@ -5,9 +5,9 @@ from an Illustrator file with multiple layers.
 
 See example simple 
 Illustrator input [here](https://github.com/heynicejacket/dzi-builder/blob/master/dzi_builder/demo-basic.ai) and 
-dzi_builder() output [here](https://embers.nicejacket.cc/dzi-builder/artboard-simple/viewer.html), and complex 
+`dzi_builder()` output [here](https://embers.nicejacket.cc/dzi-builder/artboard-simple/viewer.html), and complex 
 Illustrator input [here](https://github.com/heynicejacket/dzi-builder/blob/master/dzi_builder/demo-missing-tiles.ai) and 
-dzi_builder() output [here](https://embers.nicejacket.cc/dzi-builder/artboard-incomplete/viewer.html).
+`dzi_builder()` output [here](https://embers.nicejacket.cc/dzi-builder/artboard-incomplete/viewer.html).
 
 *Future updates will include conversion from Photoshop and GIMP.*
 
@@ -41,7 +41,7 @@ up and running.
 
 The demo Illustrator file can be found 
 [here](https://github.com/heynicejacket/dzi-builder/blob/master/dzi_builder/demo-basic.ai). 
-Basic output of this file via dzi-builder() can be seen 
+Basic output of this file via `dzi-builder()` can be seen 
 [here](https://embers.nicejacket.cc/dzi-builder/artboard-simple/viewer.html).
 
 Export of the basic, square Illustrator-generated map requires a map where artboards were generated in a sequential 
@@ -59,7 +59,8 @@ matrix as follows:
         vips_path='C:\\Program Files\\vips-dev-8.10\\bin\\',    // vips.exe location
         col=3,                                                  // number of tile cols
         row=3,                                                  // number of row cols
-        offset_right=3000                                       // width of each tile
+        offset_right=3000,                                      // width of each tile
+        verbose=True                                            // prints status to user
     )
 
 *(A number of people who use Anaconda or Docker seem to have issues with pyvips; I don't use either, but to make 
@@ -71,7 +72,7 @@ layer, which will be treated as a toggle-able layer. Any media you wish to not b
 a top-level layer named "base" - though you can change the name of the "always on" layer with the 
 [constant](https://github.com/heynicejacket/dzi-builder/blob/master/dzi_builder/core/constants.py) BASE_LAYER.
 
-dzi_builder() generates the following directories and files:
+`dzi_builder()` generates the following directories and files:
 
     layers\
         html\
@@ -144,9 +145,13 @@ while preserving their "always on" status. You'll need to also adjust the other 
 
 ## Incomplete artboard implementation
 
+:rotating_light: See [issue #9](https://github.com/heynicejacket/dzi-builder/issues/9); right now, 
+`restructure_layer_matrix()` will crash if the 0th artboard is empty. For now, if your artboard would have the 0th tile 
+empty, just make your "filler tile" the 0th artboard.
+
 The demo Illustrator file can be found 
 [here](https://github.com/heynicejacket/dzi-builder/blob/master/dzi_builder/demo-missing-tiles.ai). 
-Final output of this file via dzi_builder() can be seen 
+Final output of this file via `dzi_builder()` can be seen 
 [here](https://embers.nicejacket.cc/dzi-builder/artboard-incomplete/viewer.html).
 
 Export of an incomplete Illustrator-generated map does not require a map where artboards were generated in a sequential 
@@ -165,7 +170,8 @@ similar to the basic implementation, with the following changes:
         col=4,                                                  // number of tile cols
         row=4,                                                  // number of row cols
         offset_right=3000,                                      // width of each tile
-        incomplete=True                                         // add this optional var
+        incomplete=True,                                        // add this optional var
+        verbose=True                                            // prints status to user
     )
 
 Given the following variables:
@@ -190,3 +196,55 @@ The user should enter which tile exists in the above matrix, which should be con
     List tiles, separated by commas, where 'filler tile' should be placed (e.g. 4,5,6):
 
 The script continues as the basic implementation, generating the necessary html/css/js and dzi structures.
+
+## Incremental Implementations
+
+If you need to add multiple files together before creating your DZI (for instance, my 
+[main map](https://embers.nicejacket.cc/known-eilarun.html) is 36,000 x 60,000 pixels, composed of five Illustrator 
+files, two nearly 500mb) it can be helpful to run subsets of the full script.
+
+### Create Tiles
+
+Creates basic folder structure (needed in the complete script), and creates tiles from an Illustrator file for all 
+layers.
+
+    create_tiles(
+        ai_path='C:\\path\\to\\file\\demo-incomplete.ai',
+        offset_right=3000,
+        transparency=True
+    )
+
+### Fill Incomplete
+
+User is prompted with a diagram of the tile matrix to identify "filler tile" and where to place said tile; tiles are 
+renamed to create a complete matrix, for each layer.
+
+    fill_incomplete(
+        layer_path='C:\\path\\to\\file\\layers\\',
+        col=4,
+        row=4,
+        verbose=True
+    )
+
+### Create Layers
+
+Creates layer png files using complete layer tile matrices in `\layers\` folder.
+
+    create_layers(
+        layer_path='C:\\path\\to\\file\\layers\\',
+        vips_path='C:\\Program Files\\vips-dev-8.10\\bin\\',
+        col=4,
+        offset_right=3000,
+        verbose=True
+    )
+
+### Create DZI and Site
+
+Generates Deep Zoom Image file structures and necessary HTML/CSS/JS content for publishing to web, given complete layer 
+png files (requires download of [OpenSeadragon](https://openseadragon.github.io/#download); see `\html\readme.txt`)
+
+    create_dzi_and_site(
+        layer_path='C:\\path\\to\\file\\layers\\',
+        vips_path='C:\\Program Files\\vips-dev-8.10\\bin\\',
+        verbose=True
+    )
