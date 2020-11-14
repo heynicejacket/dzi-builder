@@ -46,10 +46,10 @@ def create_folder_structure(file_path):
         map_file.ai
         layers/
             base.png            grid.png
+            base-000.png        grid-000.png
             base-001.png        grid-001.png
             base-002.png        grid-002.png
             base-003.png        grid-003.png
-            base-004.png        grid-004.png
 
         layers/html/
                 viewer.html
@@ -71,7 +71,7 @@ def create_folder_structure(file_path):
         dzi_path   = 'C:\\path\\layers\\html\\dzi\\'
         osd_path   = 'C:\\path\\layers\\html\\openseadragon\\'
 
-    :param file_path:      str, required       folder path, e.g. 'C:\\path\\to\\file\\'
+    :param file_path:       str, required       folder path, e.g. 'C:\\path\\to\\file\\'
     :return:                str                 folder paths to all created or existing folders
     """
     layer_path = create_folder(file_path, LAYERS_FOLDER)

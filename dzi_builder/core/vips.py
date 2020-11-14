@@ -16,6 +16,13 @@ def combine_transparent_layer(layer_path, col, vips_path, verbose=False):
     """
     Uses libvips to combine individual tiles into a complete layer, to convert to a Deep Zoom Image.
 
+    Blank tiles and tiles with no transparency are by default produced as 24 bit, while transparent layers have an
+    alpha channel (are 32 bit). libvips fails when trying to combine 24 and 32 bit images; as such, the libvips
+    function 'composite' is called as a loop on each tile to force-add an alpha channel to the image.
+
+    Once all tiles are 32 bit, a list of all tiles is generated, and fed to the libvips function 'arrayjoin', joining
+    all tiles into a single image, with the number of images across corresponding to the col variable of this function.
+
     Here, I'm pointing to the location of vips.exe and using subprocess, rather than pyvips, as there seems, for
     some users, to be an issue with locating _libvips when attempting to import pyvips; see:
 
@@ -91,7 +98,7 @@ def make_image_pyramid(layer_path, layer_list, vips_path, verbose=False):
 
     :param layer_path:      str, required       folder path, e.g. 'C:\\path\\to\\file\\'
     :param layer_list:      list, required      list of layer names, e.g. ['river', 'base', 'grid']
-    :param vips_path:       str. required       path to vips.exe, e.g. 'C:\\Program Files\\vips\\bin\\vips.exe'
+    :param vips_path:       str. required       path to vips.exe, e.g. 'C:\\Program Files\\vips\\bin\\'
     :param verbose:         bool, optional      if True, prints out details of task
     :return:                none
     """

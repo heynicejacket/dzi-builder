@@ -1,6 +1,7 @@
 def js_create_artboards(app, path, transparent_png, width, height):
     """
     Returns formatted javascript Illustrator script to create transparent png from individual artboards.
+
     :param app:
     :param path:
     :param transparent_png:

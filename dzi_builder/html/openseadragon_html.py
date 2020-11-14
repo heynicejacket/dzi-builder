@@ -12,10 +12,13 @@ from dzi_builder.core.toolkit import (
 
 def make_site(layer_path, layer_list):
     """
+    Given a layer path and a list of layer names, generates the necessary html/css/js files for OpenJavascript to load
+    a dzi file on the web.
 
-    :param layer_path:
-    :param layer_list:
-    :return:
+    See /layers/openseadragon/readme.txt - requires OpenSeadragon files here: https://openseadragon.github.io/#download
+    :param layer_path:      str, required       folder path, e.g. 'C:\\path\\to\\file\\'
+    :param layer_list:      list, required      list of layer names, e.g. ['river', 'base', 'grid']
+    :return:                none
     """
     html_path = layer_path + 'html\\'
     osd_path = html_path + 'openseadragon\\'
@@ -29,14 +32,16 @@ def make_site(layer_path, layer_list):
     make_openseadragon_css(html_path)
 
 
-def make_openseadragon_html(html_path, layer_list, viewer_id=OSD_VIEWER_ID, opacity_toggle_div=OPACITY_TOGGLE_DIV):
+def make_openseadragon_html(html_path, layer_list, viewer_id=OSD_VIEWER_ID, opacity_div=OPACITY_TOGGLE_DIV):
     """
+    Generates HTML file with JS necessary for a basic implementation of a Deep Zoom Image, based on a list of layer
+    names, div name for OpenSeadragon viewer, and div name for OpenSeadragon layer opacity toggle buttons.
 
-    :param html_path:
-    :param layer_list:
-    :param viewer_id:
-    :param opacity_toggle_div:
-    :return:
+    :param html_path:       str, required       path to generate html file, e.g. '\\layers\\html\\'
+    :param layer_list:      list, required      list of layer names, e.g. ['river', 'base', 'grid']
+    :param viewer_id:       str, optional       div name for OpenSeadragon viewer
+    :param opacity_div:     str, optional       div name for OpenSeadragon layer opacity toggle buttons
+    :return:                none
     """
     toggle_button_layers = ''
     script_layers = ''
@@ -127,7 +132,7 @@ def make_openseadragon_html(html_path, layer_list, viewer_id=OSD_VIEWER_ID, opac
     </body>
 </html>""".format(
             SITE_NAME,
-            opacity_toggle_div,
+            opacity_div,
             toggle_button_layers,
             script_layers,
             viewer_id,
@@ -138,13 +143,15 @@ def make_openseadragon_html(html_path, layer_list, viewer_id=OSD_VIEWER_ID, opac
     create_file(html_path, '{}.html'.format(SITE_NAME), html_str)
 
 
-def make_openseadragon_css(html_path, viewer_id=OSD_VIEWER_ID, opacity_toggle_div=OPACITY_TOGGLE_DIV):
+def make_openseadragon_css(html_path, viewer_id=OSD_VIEWER_ID, opacity_div=OPACITY_TOGGLE_DIV):
     """
+    Generates CSS file necessary for a basic implementation of a Deep Zoom Image, based on a list of layer names, div
+    name for OpenSeadragon viewer, and div name for OpenSeadragon layer opacity toggle buttons.
 
-    :param html_path:
-    :param viewer_id:
-    :param opacity_toggle_div:
-    :return:
+    :param html_path:       str, required       path to generate css file, e.g. '\\layers\\html\\'
+    :param viewer_id:       str, optional       div name for OpenSeadragon viewer
+    :param opacity_div:     str, optional       div name for OpenSeadragon layer toggle buttons
+    :return:                none
     """
     css_str = """
 a {{
@@ -158,6 +165,6 @@ a {{
 #{1} {{
     text-align: center;
     height: 30px;
-}}""".format(viewer_id, opacity_toggle_div)
+}}""".format(viewer_id, opacity_div)
 
     create_file(html_path, '{}.css'.format(SITE_NAME), css_str)
