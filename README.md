@@ -40,7 +40,7 @@ up and running.
 
 ### Current caveats
 
-The following parameters are currently required of your Illustrator file:
+The following conditions are currently required of your Illustrator file:
 
 - [x] Artboards are 1000x1000 pixels ([issue #4](https://github.com/heynicejacket/dzi-builder/issues/4))
 - [x] Illustrator top-level layers only contain alphanum characters 
