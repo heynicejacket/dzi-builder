@@ -9,7 +9,7 @@ Illustrator input [here](https://github.com/heynicejacket/dzi-builder/blob/maste
 Illustrator input [here](https://github.com/heynicejacket/dzi-builder/blob/master/dzi_builder/demo-missing-tiles.ai) and 
 `dzi_builder()` output [here](https://embers.nicejacket.cc/dzi-builder/artboard-incomplete/viewer.html).
 
-*Future updates will include conversion from Photoshop and GIMP.*
+*Future updates will include options for Photoshop and GIMP.*
 
 ## Why?
 
@@ -17,7 +17,8 @@ Illustrator input [here](https://github.com/heynicejacket/dzi-builder/blob/maste
 
 The [first map](https://embers.nicejacket.cc/known-eilarun.html) I converted into a functioning DZI was a pain. My 
 map was massive, with a ton of detail; I used 59 artboards to make 58 unique files, and, to fill out a square, a 59th 
-generic "ocean" tile to fill in empty ocean areas that was making the Illustrator file nearly impossible to load.
+generic "ocean" tile to fill in empty ocean areas that was otherwise making the Illustrator file nearly impossible to 
+work in.
 
 From Illustrator, I mass-exported these as svg files to more rapidly generate high resolution png files with 
 ImageMagick, which I also used to combine all the individual tiles together, renumbering each png to fill in the empty
@@ -36,6 +37,16 @@ down the completion of my third and fourth (and a recolor of the first), I could
 
 dzi-builder does all of the above for you and outputs a basic version of the HTML/CSS/JS and DZI structure to get a map 
 up and running.
+
+### Current caveats
+
+Currently, the following parameters are required of your Illustrator file:
+
+- [x] Artboards are 1000x1000 pixels ([issue #4](https://github.com/heynicejacket/dzi-builder/issues/4))
+- [x] Illustrator top-level layers only contain alphanum characters 
+([issue #5](https://github.com/heynicejacket/dzi-builder/issues/5))
+- [x] Only "always-visible" base layer in Illustrator contains the word "base" ([issue #7](https://github.com/heynicejacket/dzi-builder/issues/7))
+- [x] 0th tile in tile matrix must exist ([issue #9](https://github.com/heynicejacket/dzi-builder/issues/9))
 
 ## Basic implementation
 
@@ -211,9 +222,11 @@ The script continues as the basic implementation, generating the necessary HTML/
 ## Incremental Implementations
 
 The recolor and expansion of my [first map](https://embers.nicejacket.cc/known-eilarun.html) weighed in at 36,000 x 
-60,000 pixels, composed of five Illustrator files, due to memory limitations (two were nearly 500mb each). A future 
-version of dzi-builder may take this into account, but for compiling multiple artboards - as well as debugging issues 
-with your map (or with this script) - it can be helpful to run subsets of the full script.
+60,000 pixels, composed of five Illustrator files, due to memory limitations (two were nearly 500mb each).
+
+A future version of dzi-builder will take multi-file positioning into account (as this does require some manual tile 
+renaming), but for compiling multiple artboards - as well as debugging issues with your map (or this script) - it can be 
+helpful to run subsets of the full script.
 
 If you need to add multiple files together before creating your DZI, these incremental functions within 
 [app.py](https://github.com/heynicejacket/dzi-builder/blob/master/dzi_builder/app.py) may be helpful.
