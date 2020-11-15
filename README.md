@@ -38,9 +38,14 @@ down the completion of my third and fourth (and a recolor of the first), I could
 dzi-builder does all of the above for you and outputs a basic version of the HTML/CSS/JS and DZI structure to get a map 
 up and running.
 
-### Current caveats
+### Prerequisites
 
-The following conditions are currently required of your Illustrator file:
+The more variable implementation of dzi-builder requires libvips, which can be dowloaded or compiled from 
+[here](https://github.com/libvips/libvips/releases). Remember where you place vips.exe for the `vips_path=` argument.
+
+### Caveats
+
+Currently, the following conditions are required of your Illustrator file:
 
 - [x] Artboards are 1000x1000 pixels ([issue #4](https://github.com/heynicejacket/dzi-builder/issues/4))
 - [x] Illustrator top-level layers only contain alphanum characters 
