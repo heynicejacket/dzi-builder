@@ -1,12 +1,14 @@
+<p align="center"><img src="https://embers.nicejacket.cc/dzi-builder/dzi-builder-logo.png"></p>
+
 # dzi-builder
 Generate [Deep Zoom Image](https://docs.microsoft.com/en-us/previous-versions/windows/silverlight/dotnet-windows-silverlight/cc645077(v=vs.95)?redirectedfrom=MSDN) 
 (DZI) and accompanying HTML/CSS structures and requisite JavaScript for [OpenSeadragon](https://openseadragon.github.io/) 
 from an Illustrator file with multiple layers.
 
 See example simple 
-Illustrator input [here](https://github.com/heynicejacket/dzi-builder/blob/master/dzi_builder/demo-basic.ai) and 
+Illustrator input [here](https://github.com/heynicejacket/dzi-builder/blob/master/dzi_builder/demo-simple.ai) and 
 `dzi_builder()` output [here](https://embers.nicejacket.cc/dzi-builder/artboard-simple/viewer.html), and complex 
-Illustrator input [here](https://github.com/heynicejacket/dzi-builder/blob/master/dzi_builder/demo-missing-tiles.ai) and 
+Illustrator input [here](https://github.com/heynicejacket/dzi-builder/blob/master/dzi_builder/demo-incomplete.ai) and 
 `dzi_builder()` output [here](https://embers.nicejacket.cc/dzi-builder/artboard-incomplete/viewer.html).
 
 *Future updates will include options for Photoshop and GIMP.*
