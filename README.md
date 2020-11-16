@@ -1,4 +1,4 @@
-<p align="center"><img src="https://embers.nicejacket.cc/dzi-builder/dzi-builder-logo-rect.png"></p>
+<p align="center"><img src="https://embers.nicejacket.cc/dzi-builder/dzi-builder-logo-rect.png" title="Chapbook font by Feòrag NicBhrìde"></p>
 
 # dzi-builder
 Generate [Deep Zoom Image](https://docs.microsoft.com/en-us/previous-versions/windows/silverlight/dotnet-windows-silverlight/cc645077(v=vs.95)?redirectedfrom=MSDN) 
