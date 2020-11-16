@@ -1,4 +1,4 @@
-<p align="center"><img src="https://embers.nicejacket.cc/dzi-builder/dzi-builder-logo.png"></p>
+<p align="center"><img src="https://embers.nicejacket.cc/dzi-builder/dzi-builder-logo-rect.png"></p>
 
 # dzi-builder
 Generate [Deep Zoom Image](https://docs.microsoft.com/en-us/previous-versions/windows/silverlight/dotnet-windows-silverlight/cc645077(v=vs.95)?redirectedfrom=MSDN) 
@@ -17,16 +17,15 @@ Illustrator input [here](https://github.com/heynicejacket/dzi-builder/blob/maste
 
 <p align="center"><img src="https://embers.nicejacket.cc/dzi-builder/dzi-builder-header.png"></p>
 
-The [first map](https://embers.nicejacket.cc/known-eilarun.html) I converted into a functioning DZI was a pain. My 
-map was massive, with a ton of detail; I used 59 artboards to make 58 unique files, and, to fill out a square, a 59th 
-generic "ocean" tile to fill in empty ocean areas that was otherwise making the Illustrator file nearly impossible to 
-work in.
+The first map I converted into a functioning DZI was a pain. My map was massive, with a ton of detail; I used 59 
+artboards to make 58 unique files, and, to fill out a square, a 59th generic ocean "filler" tile to fill in empty ocean 
+areas that was otherwise making the Illustrator file nearly impossible (memory-wise) to work in.
 
 From Illustrator, I mass-exported these as svg files to more rapidly generate high resolution png files with 
 ImageMagick, which I also used to combine all the individual tiles together, renumbering each png to fill in the empty
 ocean areas with that 59th tile, 41 times.
 
-I ran 90 individual commands to append each row of images together, and 9 more to combine each row into a single, 
+I ran 90 individual terminal commands to append each row of images together, and 9 more to combine each row into a single, 
 36,000 x 30,000 pixel image.
 
 Finally, I used libvips to convert that into a DZI.
@@ -35,14 +34,14 @@ Later, when I wanted to add transparent layers - nation borders, etc. - I had to
 layers, this time solely in libvips as ImageMagick doesn't really support transparent png.
 
 I've done that [once since](https://embers.nicejacket.cc/remembered-blacklands.html) for one other map, but staring 
-down the completion of my third and fourth (and a recolor of the first), I couldn't stomach it again.
+down the completion of my third map (and a recolor of the first), I couldn't stomach it again.
 
 dzi-builder does all of the above for you and outputs a basic version of the HTML/CSS/JS and DZI structure to get a map 
 up and running.
 
 ### Prerequisites
 
-The more variable implementation of dzi-builder requires libvips, which can be dowloaded or compiled from 
+The primary implementation of dzi-builder requires libvips, which can be dowloaded 
 [here](https://github.com/libvips/libvips/releases). Remember where you place vips.exe for the `vips_path=` argument.
 
 ### Caveats
